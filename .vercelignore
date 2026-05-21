@@ -1,0 +1,9 @@
+.env
+.env*.local
+.env.production
+.omx/
+.next/
+node_modules/
+test-results/
+coverage/
+*.tsbuildinfo
