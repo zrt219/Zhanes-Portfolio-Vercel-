@@ -19,6 +19,12 @@ describe("AI Gateway Failover Playground", () => {
     expect(result.provider.id).toBe("fast-small");
   });
 
+  it("marks readiness for tight budgets", () => {
+    const result = routeRequest({ prompt: "hello", scenario: "primary_outage", policy: "highest_reliability", maxLatencyMs: 200, maxCostUsd: 0.002 });
+    expect(result.readiness.status).toBe("REVIEW");
+    expect(result.readiness.reasons.length).toBeGreaterThan(0);
+  });
+
   it("passes eval fixtures", () => {
     expect(runEvalSuite().score).toBe(100);
   });

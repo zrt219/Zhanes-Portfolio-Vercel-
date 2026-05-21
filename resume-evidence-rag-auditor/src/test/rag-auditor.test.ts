@@ -9,8 +9,9 @@ describe("Resume Evidence RAG Auditor", () => {
   });
 
   it("flags inflated claims without evidence", () => {
-    const audit = auditResumeClaims({ jobDescription: "AI role", claims: ["Led production AI platform for millions of users."] });
+    const audit = auditResumeClaims({ jobDescription: "Applied AI engineering role", claims: ["Led production AI platform for millions of users."] });
     expect(audit.auditedClaims[0].status).toBe("UNVERIFIED");
+    expect(audit.evidenceGaps).toHaveLength(1);
   });
 
   it("generates an evidence report", () => {
@@ -20,5 +21,11 @@ describe("Resume Evidence RAG Auditor", () => {
 
   it("passes eval fixtures", () => {
     expect(runEvalSuite().score).toBe(100);
+  });
+
+  it("adds job-overlap evidence to verified claims", () => {
+    const audit = auditResumeClaims({ jobDescription: "RAG retrieval evals", claims: ["Built Resume Evidence RAG Auditor with retrieval and evals."] });
+    expect(audit.auditedClaims[0].jobOverlap.length).toBeGreaterThan(0);
+    expect(audit.tailoredBullets[0]).toContain("evidence:");
   });
 });

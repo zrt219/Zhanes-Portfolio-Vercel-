@@ -8,12 +8,18 @@ describe("Enterprise Agent Workflow Studio", () => {
   });
 
   it("keeps read-only workflows ungated", () => {
-    const workflow = generateWorkflow({ objective: "Answer a policy question from internal documents", selectedTools: ["policy_search"], riskLevel: "low" });
+    const workflow = generateWorkflow({ objective: "Answer a policy question from internal documents", selectedTools: ["policy_search"], riskLevel: "low", dataClass: "public" });
     expect(workflow.approvalGates).toHaveLength(0);
   });
 
   it("runs deterministic evals", () => {
     expect(runEvalSuite().score).toBe(100);
+  });
+
+  it("blocks unknown tools and reports readiness", () => {
+    const workflow = generateWorkflow({ objective: "Attempt an unknown tool", selectedTools: ["unknown_tool"], riskLevel: "low", dataClass: "internal" });
+    expect(workflow.readiness.status).toBe("BLOCKED");
+    expect(workflow.readiness.blockers[0]).toContain("unknown_tool");
   });
 
   it("exports an audit report", () => {
