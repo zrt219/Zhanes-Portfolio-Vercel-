@@ -1,0 +1,24 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: #f0f6ff;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(214, 170, 82, 0.15), transparent 28rem),
+    radial-gradient(circle at 85% 10%, rgba(109, 216, 255, 0.13), transparent 28rem),
+    #090d12;
+  font-family: Arial, Helvetica, sans-serif;
+}
+a { color: inherit; }
+button, input, textarea, select { font: inherit; }
+.shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+.panel { border: 1px solid #2a3545; background: rgba(14, 20, 28, 0.9); border-radius: 10px; box-shadow: 0 22px 80px rgba(0, 0, 0, 0.34); }
+.grid { display: grid; gap: 16px; }
+.two { grid-template-columns: 1fr 1fr; }
+.three { grid-template-columns: repeat(3, 1fr); }
+.chip { display: inline-flex; gap: 8px; align-items: center; border: 1px solid #d6aa52; border-radius: 999px; padding: 7px 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+.chip.review { border-style: dashed; }
+.chip.pass { border-color: #6dd8ff; }
+.muted { color: #a9b8c9; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+@media (max-width: 850px) { .two, .three { grid-template-columns: 1fr; } }

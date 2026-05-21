@@ -12,6 +12,7 @@ import { FixPlan } from "./FixPlan";
 import { IncidentReport } from "./IncidentReport";
 import { LogInput } from "./LogInput";
 import { SampleLogPicker } from "./SampleLogPicker";
+import { SocialLinks } from "./SocialLinks";
 import { StatusChip } from "./StatusChip";
 
 export function BuildDoctorApp() {
@@ -81,6 +82,7 @@ export function BuildDoctorApp() {
           <StatusChip kind="locked" label="No raw log storage" />
           <StatusChip kind="pass" label="Deterministic fallback" />
         </div>
+        <SocialLinks />
       </header>
 
       <section className="mb-8 grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">

@@ -15,15 +15,8 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": [
-    "node_modules",
-    "enterprise-agent-workflow-studio",
-    "ai-gateway-failover-playground",
-    "resume-evidence-rag-auditor"
-  ]
+  "exclude": ["node_modules"]
 }
