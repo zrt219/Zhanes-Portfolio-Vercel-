@@ -60,3 +60,12 @@
 - Verification performed: `npm run test`, `npm run typecheck`, and `npm run build` across all four apps; local root smoke test for `/` and `/build-doctor` confirmed `Plain English` content renders; Vercel production deployments completed for all four apps; deployed smoke checks confirmed `Plain English` content and tooltip markup on the suite hub, Build Doctor, AI Gateway, Enterprise Studio, and Resume Auditor.
 - Evidence/files: `src/components/InfoTip.tsx`, `src/components/SuiteHub.tsx`, `src/components/BuildDoctorApp.tsx`, `src/components/DiagnosisPanel.tsx`, `src/components/EvidenceTable.tsx`, `src/components/FixPlan.tsx`, `src/components/LogInput.tsx`, `src/components/SampleLogPicker.tsx`, `ai-gateway-failover-playground/src/app/GatewayPlaygroundApp.tsx`, `enterprise-agent-workflow-studio/src/app/EnterpriseStudioApp.tsx`, `resume-evidence-rag-auditor/src/app/ResumeAuditorApp.tsx`.
 - Resume-safe bullet: Improved a four-app Vercel AI engineering suite with accessible explanatory tooltips and plain-language reviewer panels that translate AI gateway routing, build diagnosis, enterprise agent safety, and RAG evidence auditing into non-specialist language.
+
+## 2026-05-21 — Verified Engineering Work
+
+- Built/changed: Completed a 5-step UI polish pass on the Vercel Build Doctor route, replacing the boxy first viewport with a cleaner header, stronger hero, timeline-style diagnostic pipeline, clearer proof cards, and a more polished log workbench.
+- Systems involved: Next.js App Router, React components, Tailwind CSS, Build Doctor demo route, Vercel production deployment.
+- Technical skills demonstrated: visual hierarchy repair, product UI polish, responsive layout refinement, developer-tool information architecture, verification-driven frontend iteration.
+- Verification performed: `npm run typecheck`, `npm run test`, `npm run build`; local smoke test confirmed the redesigned `/build-doctor` content renders with the new headline, 5-step diagnostic pass, proof cards, and plain-language panel.
+- Evidence/files: `src/components/BuildDoctorApp.tsx`, `src/components/LogInput.tsx`, `src/components/SampleLogPicker.tsx`.
+- Resume-safe bullet: Refined the Vercel Build Doctor UI with a cleaner command-center layout, stronger first-viewport hierarchy, timeline-style diagnosis flow, and polished log workbench while preserving deterministic diagnosis behavior.
