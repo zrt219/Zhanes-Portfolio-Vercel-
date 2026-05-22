@@ -25,6 +25,16 @@ export type SuiteWorkflowStep = {
   href: string;
 };
 
+export type PortfolioProject = {
+  id: string;
+  name: string;
+  url: string;
+  githubUrl?: string;
+  category: string;
+  deploymentStatus: string;
+  notes: string;
+};
+
 export const suiteApps: SuiteApp[] = [
   {
     id: "build-doctor",
@@ -89,6 +99,106 @@ export const suiteApps: SuiteApp[] = [
     proofSignals: ["Evidence retrieval", "Claim verification", "Gap flags", "Grounded bullet export"],
     primaryDemoAction: "Verify claims against evidence",
     evalSummary: "4 safety and grounding fixtures",
+  },
+];
+
+export const portfolioProjects: PortfolioProject[] = [
+  {
+    id: "build-doctor",
+    name: "Vercel Build Doctor Agent",
+    url: "https://vercel-build-doctor-agent.vercel.app",
+    githubUrl: "https://github.com/zrt219/Build-Doctor",
+    category: "Portfolio Hub / Build QA",
+    deploymentStatus: "Production link provided",
+    notes: "Build-log diagnosis, redaction, evals, integration health, and the new portfolio Vercel command center.",
+  },
+  {
+    id: "ai-resume-tailor",
+    name: "AI Resume Tailor Service",
+    url: "https://ai-resume-tailor-service.vercel.app",
+    githubUrl: "https://github.com/zrt219/AI-resume-tailor-service-",
+    category: "AI Tool / Resume QA",
+    deploymentStatus: "Production link provided",
+    notes: "Role-targeted resume and cover-letter packet generator with evidence-first positioning.",
+  },
+  {
+    id: "evidence-dashboard",
+    name: "Zhane Grey Evidence Dashboard",
+    url: "https://zhane-grey-evidence-dashboard.vercel.app",
+    githubUrl: "https://github.com/zrt219/AI-Engineering-Evidence-Engine",
+    category: "Evidence / Portfolio Proof",
+    deploymentStatus: "Git connection needs review",
+    notes: "Evidence dashboard for recruiter-facing project proof and AI engineering documentation.",
+  },
+  {
+    id: "gateway-failover",
+    name: "AI Gateway Failover Playground",
+    url: "https://ai-gateway-failover-playground.vercel.app",
+    githubUrl: "https://github.com/zrt219/ai-gateway-failover-playground",
+    category: "AI Infrastructure",
+    deploymentStatus: "Vercel list reported no production deployment",
+    notes: "Provider failover, routing policy, latency/cost budget, and fallback trace demo.",
+  },
+  {
+    id: "enterprise-workflow",
+    name: "Enterprise Agent Workflow Studio",
+    url: "https://enterprise-agent-workflow-studio.vercel.app",
+    githubUrl: "https://github.com/zrt219/enterprise-agent-workflow-studio",
+    category: "Agentic Workflow",
+    deploymentStatus: "Vercel list reported no production deployment",
+    notes: "Approval-gated enterprise agent workflow design with risk scoring and audit handoff.",
+  },
+  {
+    id: "agentic-rag-memory-digital-twin",
+    name: "Agentic RAG Memory Digital Twin Edge System",
+    url: "https://agentic-rag-memory-digital-twin-edg.vercel.app",
+    githubUrl: "https://github.com/zrt219/agentic-rag-memory-digital-twin-edge-system",
+    category: "RAG / Digital Twin",
+    deploymentStatus: "Production link provided",
+    notes: "Employer-facing RAG memory and digital-twin edge-system proof surface.",
+  },
+  {
+    id: "fuji-byzrt",
+    name: "Fuji by ZRT",
+    url: "https://fuji-byzrt.vercel.app",
+    githubUrl: "https://github.com/zrt219/Fuji",
+    category: "Visual System",
+    deploymentStatus: "Production link provided",
+    notes: "Fuji visual portfolio frames and homepage experience.",
+  },
+  {
+    id: "resume-evidence-rag-auditor",
+    name: "Resume Evidence RAG Auditor",
+    url: "https://resume-evidence-rag-auditor.vercel.app",
+    githubUrl: "https://github.com/zrt219",
+    category: "RAG / Claim Audit",
+    deploymentStatus: "Production link provided",
+    notes: "Resume claim verification against project evidence with grounded bullet output.",
+  },
+  {
+    id: "datumx",
+    name: "DatumX",
+    url: "https://datumx.vercel.app",
+    githubUrl: "https://github.com/zrt219/DatumX",
+    category: "Web3 / Data",
+    deploymentStatus: "Production link provided",
+    notes: "DatumX public project link included for reviewer navigation.",
+  },
+  {
+    id: "untitled-x-nine",
+    name: "Untitled X Nine",
+    url: "https://untitled-x-nine.vercel.app",
+    category: "Vercel Project",
+    deploymentStatus: "URL provided",
+    notes: "Standalone Vercel project link; GitHub source was not provided in this request.",
+  },
+  {
+    id: "ui-pi-eight",
+    name: "UI Pi Eight",
+    url: "https://ui-pi-eight.vercel.app",
+    category: "Vercel Project",
+    deploymentStatus: "URL provided",
+    notes: "Standalone UI project link; GitHub source was not provided in this request.",
   },
 ];
 

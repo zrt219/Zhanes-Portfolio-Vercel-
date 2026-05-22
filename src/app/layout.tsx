@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ZRT Vercel AI Systems Suite",
-  description: "Connected Vercel AI portfolio suite for build diagnosis, gateway failover, enterprise agent workflows, and evidence-grounded resume proof.",
+  title: "Zhane's Portfolio Vercel",
+  description: "Connected Vercel portfolio hub for Build Doctor, resume tailoring, evidence dashboards, AI gateway demos, and agent workflow proof.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

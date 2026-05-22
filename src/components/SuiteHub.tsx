@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, ExternalLink, GitBranch, RadioTower, ShieldCheck } from "lucide-react";
 import { runEvalSuite } from "@/lib/build-doctor";
-import { suiteApps, suiteDemoFlow, suiteWorkflowSteps } from "@/lib/suite-metadata";
+import { portfolioProjects, suiteApps, suiteDemoFlow, suiteWorkflowSteps } from "@/lib/suite-metadata";
 import { InfoTip } from "./InfoTip";
 import { SocialLinks } from "./SocialLinks";
 import { StatusChip } from "./StatusChip";
@@ -26,16 +26,16 @@ export function SuiteHub() {
               <RadioTower className="h-5 w-5 text-cyan" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-slate-400">ZRT Vercel AI Systems Suite</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Zhane&apos;s Portfolio Vercel</p>
               <p className="font-semibold text-white">
-                Connected portfolio command center{" "}
-                <InfoTip label="What this is">A single home base that links four working demos, their proof routes, and the reviewer flow.</InfoTip>
+                Portfolio command center{" "}
+                <InfoTip label="What this is">A single home base that links Vercel projects, proof routes, GitHub sources, and the reviewer flow.</InfoTip>
               </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <StatusChip kind="simulated" label="Demo systems" />
-            <StatusChip kind="pass" label="4 production apps" />
+            <StatusChip kind="pass" label={`${portfolioProjects.length} Vercel links`} />
             <StatusChip kind="locked" label="GitHub-first proof" />
           </div>
           <SocialLinks />
@@ -45,14 +45,14 @@ export function SuiteHub() {
       <section className="mb-8 grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
         <div className="rounded-lg border border-line bg-panel/85 p-7 shadow-glow">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">Employer-facing AI engineering system</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-white md:text-6xl">One suite for deploy debugging, agent safety, AI gateway routing, and evidence-grounded resume proof.</h1>
+          <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-white md:text-6xl">Zhane&apos;s Portfolio Vercel: one command center for AI apps, proof systems, and deploy diagnostics.</h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300">
-            Four separate Vercel apps are connected through one premium command center. Every demo is deterministic, explicitly labeled, production deployed, and built to show applied AI product engineering without fake integrations.
+            Build Doctor now acts as the portfolio hub for the Vercel app surface: resume tailoring, evidence dashboards, gateway failover, agent workflow design, RAG/digital twin systems, visual systems, and supporting project links.
           </p>
           <div className="mt-5 rounded-md border border-dashed border-cyan/40 bg-cyan/5 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan">Plain English</p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              This suite is like a showroom for AI engineering work: one app explains broken website builds, one chooses backup AI providers, one designs safe business workflows, and one checks resume claims against evidence.
+              This is the reviewer map: one place to click through Zhane&apos;s Vercel projects, inspect GitHub-backed work where available, and open the Build Doctor diagnostic demo.
             </p>
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -86,6 +86,45 @@ export function SuiteHub() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mb-8 rounded-lg border border-line bg-panel/85 p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan">Vercel project directory</p>
+            <h2 className="mt-2 text-3xl font-semibold text-white">Portfolio links reviewers can open directly.</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+              Deployment notes mirror the current Vercel list when provided. Projects without a supplied GitHub source are labeled as URL-only instead of overclaiming repo proof.
+            </p>
+          </div>
+          <StatusChip kind="locked" label="Public links only" />
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {portfolioProjects.map((project, index) => (
+            <article key={project.id} className="rounded-md border border-line bg-black/30 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-xs text-cyan">{String(index + 1).padStart(2, "0")} / {project.category}</p>
+                  <h3 className="mt-2 text-lg font-semibold text-white">{project.name}</h3>
+                </div>
+                <span className="rounded-full border border-dashed border-gold/45 bg-gold/10 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-gold">
+                  {project.deploymentStatus}
+                </span>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-400">{project.notes}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a href={project.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-cyan/60 bg-cyan/10 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan/20">
+                  Open app <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </a>
+                {project.githubUrl ? (
+                  <a href={project.githubUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm text-slate-200 hover:border-white/45">
+                    GitHub <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                  </a>
+                ) : null}
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 

@@ -1,6 +1,8 @@
 ![Build Doctor Fuji banner](assets/build-doctor-readme/fuji-banner.png)
 
-# Build Doctor
+# Zhane's Portfolio Vercel / Build Doctor
+
+Zhane's Portfolio Vercel is the public command center for Zhane Grey's Vercel-hosted AI engineering portfolio. The hub keeps Build Doctor as the flagship deploy-debugging tool while linking the broader portfolio surface: resume tailoring, evidence dashboards, gateway failover, enterprise agent workflows, RAG/digital twin systems, visual systems, DatumX, and supporting Vercel demos.
 
 Build Doctor is a Vercel-deployed developer tool that turns failed Next.js and Vercel build logs into a traceable root-cause diagnosis, safe patch draft, optional DeepSeek review, and exportable markdown incident report.
 
@@ -8,13 +10,27 @@ The deterministic engine is the source of truth. Optional LLM review is isolated
 
 ## Live Links
 
-- Production app: [https://vercel-build-doctor-agent.vercel.app](https://vercel-build-doctor-agent.vercel.app)
+- Portfolio hub: [https://vercel-build-doctor-agent.vercel.app](https://vercel-build-doctor-agent.vercel.app)
 - Build Doctor: [https://vercel-build-doctor-agent.vercel.app/build-doctor](https://vercel-build-doctor-agent.vercel.app/build-doctor)
 - Case study: [https://vercel-build-doctor-agent.vercel.app/case-study](https://vercel-build-doctor-agent.vercel.app/case-study)
 - Reviewer packet: [`REVIEWER_PACKET.md`](REVIEWER_PACKET.md)
 - Engineering log: [`ai-engineering/daily-engineering-log.md`](ai-engineering/daily-engineering-log.md)
 - Build Doctor docs: [`docs/build-doctor.md`](docs/build-doctor.md)
 - Release evidence: [`docs/build-doctor-release-evidence.md`](docs/build-doctor-release-evidence.md)
+
+## Portfolio Vercel Directory
+
+- [Vercel Build Doctor Agent](https://vercel-build-doctor-agent.vercel.app) - [GitHub](https://github.com/zrt219/Build-Doctor)
+- [AI Resume Tailor Service](https://ai-resume-tailor-service.vercel.app) - [GitHub](https://github.com/zrt219/AI-resume-tailor-service-)
+- [Zhane Grey Evidence Dashboard](https://zhane-grey-evidence-dashboard.vercel.app) - [GitHub](https://github.com/zrt219/AI-Engineering-Evidence-Engine)
+- [AI Gateway Failover Playground](https://ai-gateway-failover-playground.vercel.app) - [GitHub](https://github.com/zrt219/ai-gateway-failover-playground)
+- [Enterprise Agent Workflow Studio](https://enterprise-agent-workflow-studio.vercel.app) - [GitHub](https://github.com/zrt219/enterprise-agent-workflow-studio)
+- [Agentic RAG Memory Digital Twin Edge System](https://agentic-rag-memory-digital-twin-edg.vercel.app) - [GitHub](https://github.com/zrt219/agentic-rag-memory-digital-twin-edge-system)
+- [Fuji by ZRT](https://fuji-byzrt.vercel.app) - [GitHub](https://github.com/zrt219/Fuji)
+- [Resume Evidence RAG Auditor](https://resume-evidence-rag-auditor.vercel.app)
+- [DatumX](https://datumx.vercel.app) - [GitHub](https://github.com/zrt219/DatumX)
+- [Untitled X Nine](https://untitled-x-nine.vercel.app)
+- [UI Pi Eight](https://ui-pi-eight.vercel.app)
 
 ## Fuji Detail
 

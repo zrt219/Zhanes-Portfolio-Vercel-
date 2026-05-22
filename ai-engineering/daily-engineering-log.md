@@ -169,6 +169,15 @@
 - Evidence/files: `src/components/BuildDoctorApp.tsx`, `src/components/SampleLogPicker.tsx`, `src/components/LogInput.tsx`, `src/components/DiagnosisPanel.tsx`, `src/components/TraceTimeline.tsx`, `src/components/EvidenceTable.tsx`, `src/components/PatchDraftPanel.tsx`, `src/components/FixPlan.tsx`, `src/components/AiPatchReviewPanel.tsx`, `src/components/IncidentReport.tsx`, `src/lib/build-doctor/openrouter.ts`, `src/lib/build-doctor/llm/openrouter-deepseek.ts`, `src/app/api/enrich/route.ts`, `src/test/build-doctor.test.ts`, `e2e/build-doctor.spec.ts`, `.env.example`, `docs/build-doctor.md`, `README.md`.
 - Resume-safe bullet: Polished Build Doctor into an employer-facing Vercel build-diagnosis tool with deterministic root-cause tracing, dynamic secret-scan feedback, safe patch-draft review, markdown incident export, DeepSeek-only optional review, and verified unit/build/browser/audit coverage.
 
+## 2026-05-22 - Verified Engineering Work
+
+- Built/changed: Converted the Build Doctor root hub into "Zhane's Portfolio Vercel" with a data-driven public Vercel project directory, updated app metadata, and documented the portfolio hub role in the README.
+- Systems involved: Build Doctor root suite hub, portfolio project metadata, Next.js app metadata, README, public Vercel project navigation.
+- Technical skills demonstrated: portfolio information architecture, data-driven React UI, evidence-safe public link labeling, employer-facing project navigation, Vercel portfolio documentation.
+- Verification performed: `npm run typecheck`, `npm run build`, `npm run test` (25 tests); production deployment and GitHub push handled after local verification.
+- Evidence/files: `src/lib/suite-metadata.ts`, `src/components/SuiteHub.tsx`, `src/app/layout.tsx`, `README.md`.
+- Resume-safe bullet: Added a data-driven Vercel portfolio command center to Build Doctor, linking AI resume tailoring, evidence dashboards, gateway failover, workflow studio, RAG/digital twin, Fuji, DatumX, and supporting Vercel projects with public proof labels.
+
 ## 2026-05-21 - Verified Engineering Work
 
 - Built/changed: Improved Build Doctor's DeepSeek rate-limit fallback UX so `free_model_rate_limited` is presented as intentional reliability behavior with a clear rate-limit title, explanatory copy, status chips for core diagnosis/review/export, and markdown report wording that records why optional review was not included.
