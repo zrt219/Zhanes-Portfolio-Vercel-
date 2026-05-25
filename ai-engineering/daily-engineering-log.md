@@ -357,3 +357,12 @@
 - Verification performed: `npm run typecheck`, `npm test` (32 tests), `npm run build`, `npm run test:e2e` (19 tests), and local production restart on port 3017.
 - Evidence/files: `src/components/portfolio/LiveWorkflowEventsTracker.tsx`, `src/components/portfolio/LiveWorkflowEventsChart.tsx`, `e2e/build-doctor.spec.ts`.
 - Resume-safe bullet: Improved an evidence telemetry dashboard by making metric mode controls update the visible chart, summary, source context, and browser-tested interaction state.
+
+## 2026-05-25 - Verified Engineering Work
+
+- Built/changed: Upgraded the Live Workflow Events Tracker with a public-safe `/api/workflow-tracker` endpoint, manual snapshot refresh, bundled fallback state, and a draggable/keyboard-accessible SVG timeline scrubber for inspecting dated evidence points.
+- Systems involved: Build Doctor portfolio mainframe, Next.js API route layer, live workflow tracker data model, SVG chart interaction layer, Playwright E2E suite, local production server on port 3017.
+- Technical skills demonstrated: safe API surface design, public/private evidence boundary enforcement, pointer and keyboard chart interaction, client refresh/error handling, accessible analytics UI, browser regression testing.
+- Verification performed: `npm run typecheck`, `npm test` (32 tests), `npm run build`, `npm run test:e2e` (21 tests), local `/api/workflow-tracker` HTTP 200 check, and local production restart on port 3017.
+- Evidence/files: `src/app/api/workflow-tracker/route.ts`, `src/components/portfolio/LiveWorkflowEventsTracker.tsx`, `src/components/portfolio/LiveWorkflowEventsChart.tsx`, `src/test/build-doctor.test.ts`, `e2e/build-doctor.spec.ts`.
+- Resume-safe bullet: Added a public-safe tracker API and draggable timeline inspection to an evidence telemetry module, with manual refresh fallback behavior and verified unit, build, and browser coverage.

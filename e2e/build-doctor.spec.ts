@@ -26,7 +26,7 @@ test("presents the AI engineering portfolio mainframe", async ({ page }) => {
   const workflowTracker = page.locator("#workflow-tracker");
   await expect(workflowTracker.getByRole("heading", { name: /Evidence-maintained telemetry from Codex session logs/i })).toBeVisible();
   await expect(workflowTracker.getByText("1,160,551").first()).toBeVisible();
-  await expect(page.locator("svg[aria-label='Workflow events chart for workflow tracker history']")).toBeVisible();
+  await expect(page.locator("svg[aria-label='Workflow events draggable chart for workflow tracker history']")).toBeVisible();
   await expect(page.getByText("Not image-derived")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Searchable proof-backed project map." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "What the work proves." })).toBeVisible();
@@ -87,11 +87,13 @@ test("upgrades live workflow tracker interactions and evidence drawer", async ({
 
   const tracker = page.locator("#workflow-tracker");
   await expect(tracker.getByText("Static evidence snapshot")).toBeVisible();
+  await expect(tracker.getByText("Manual refresh reads the public-safe snapshot endpoint. It does not expose raw logs or private paths.")).toBeVisible();
+  await expect(tracker.getByText("Drag timeline to inspect evidence points. Arrow keys move the selected date.")).toBeVisible();
   await expect(tracker.getByText("This is not a real-time stream")).toBeVisible();
   await expect(tracker.getByText("Only aggregate metrics are shown. Raw logs, private paths, secrets, and local file contents are not exposed.")).toBeVisible();
 
   await tracker.getByRole("button", { name: "Session rows" }).click();
-  await expect(page.locator("svg[aria-label='Session rows chart for workflow tracker history']")).toBeVisible();
+  await expect(page.locator("svg[aria-label='Session rows draggable chart for workflow tracker history']")).toBeVisible();
   await expect(tracker.getByText("Codex session rows")).toBeVisible();
   await expect(tracker.getByText("Session index rows aligned to local session logs in the dated evidence refresh.")).toBeVisible();
   await expect(tracker.getByText("Showing Session rows")).toBeVisible();
@@ -99,7 +101,7 @@ test("upgrades live workflow tracker interactions and evidence drawer", async ({
   await expect(tracker.getByText(/757 sessions/i)).toBeVisible();
 
   await tracker.getByRole("button", { name: "Daily delta" }).click();
-  await expect(page.locator("svg[aria-label='Daily delta chart for workflow tracker history']")).toBeVisible();
+  await expect(page.locator("svg[aria-label='Daily delta draggable chart for workflow tracker history']")).toBeVisible();
   await expect(tracker.getByText("daily event delta")).toBeVisible();
   await expect(tracker.getByText("Workflow-event growth compared with the previous tracker snapshot.")).toBeVisible();
   await expect(tracker.getByText("Showing Daily delta")).toBeVisible();
@@ -117,6 +119,46 @@ test("upgrades live workflow tracker interactions and evidence drawer", async ({
   await tracker.getByRole("button", { name: "Copy Live Workflow Events Tracker metric summary" }).click();
   await expect(tracker.getByRole("button", { name: "Copy Live Workflow Events Tracker metric summary" })).toContainText("Copied");
   await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain("1,160,551 workflow events");
+});
+
+test("supports draggable tracker scrubber and public snapshot refresh", async ({ page }) => {
+  await page.goto("/");
+  const tracker = page.locator("#workflow-tracker");
+  const chart = page.locator("svg[aria-label='Workflow events draggable chart for workflow tracker history']");
+  await tracker.scrollIntoViewIfNeeded();
+  await expect(chart).toBeVisible();
+  await expect(tracker.getByText("2026-05-24: Workflow events 1,160,551.")).toBeVisible();
+
+  const chartBox = await chart.boundingBox();
+  expect(chartBox).toBeTruthy();
+  await page.mouse.move(chartBox!.x + chartBox!.width - 24, chartBox!.y + chartBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(chartBox!.x + 24, chartBox!.y + chartBox!.height / 2, { steps: 4 });
+  await page.mouse.up();
+  await expect(tracker.getByText("2026-05-23: Workflow events 1,135,833.")).toBeVisible();
+
+  await chart.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(tracker.getByText("2026-05-24: Workflow events 1,160,551.")).toBeVisible();
+
+  await tracker.getByRole("button", { name: "Refresh public-safe workflow tracker snapshot" }).click();
+  await expect(tracker.getByText(/Snapshot refreshed from public API at/i)).toBeVisible();
+});
+
+test("shows safe fallback copy when tracker refresh endpoint fails", async ({ page }) => {
+  await page.route("**/api/workflow-tracker", async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: false, error: { code: "UNAVAILABLE", message: "Unavailable." } }),
+    });
+  });
+
+  await page.goto("/");
+  const tracker = page.locator("#workflow-tracker");
+  await tracker.getByRole("button", { name: "Refresh public-safe workflow tracker snapshot" }).click();
+  await expect(tracker.getByText("Refresh unavailable. Showing bundled public-safe snapshot.")).toBeVisible();
+  await expect(tracker.getByText("1,160,551").first()).toBeVisible();
 });
 
 test("keeps the portfolio directory free of noisy deployment status badges", async ({ page }) => {
@@ -217,7 +259,7 @@ test("filters project directory and preserves proof-status semantics", async ({ 
   await expect(page.getByRole("button", { name: "All" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Search projects")).toHaveValue("");
 
-  const chart = page.locator("svg[aria-label='Workflow events chart for workflow tracker history']");
+  const chart = page.locator("svg[aria-label='Workflow events draggable chart for workflow tracker history']");
   const chartBox = await chart.boundingBox();
   expect(chartBox?.width).toBeGreaterThan(300);
   expect(chartBox?.height).toBeGreaterThan(120);

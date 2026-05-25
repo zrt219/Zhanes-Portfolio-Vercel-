@@ -5,6 +5,7 @@ import { GET as evalGet } from "@/app/api/eval/route";
 import { GET as healthGet } from "@/app/api/health/route";
 import { GET as integrationHealthGet } from "@/app/api/integration-health/route";
 import { POST as reportPost } from "@/app/api/report/route";
+import { GET as workflowTrackerGet } from "@/app/api/workflow-tracker/route";
 import { diagnoseBuildLog, generateIncidentReport, runEvalSuite } from "@/lib/build-doctor";
 import { getAllCachedDeepSeekDemoReviews, getCachedDeepSeekDemoReview } from "@/lib/build-doctor/cached-demo-reviews";
 import { DEEPSEEK_FREE_MODEL, enrichDiagnosisWithOpenRouter, extractJsonObjectFromModelText, getBuildDoctorOpenRouterConfig, sanitizeDiagnosisForOpenRouter, validateOpenRouterModel } from "@/lib/build-doctor/openrouter";
@@ -544,6 +545,22 @@ describe("Vercel Build Doctor deterministic engine", () => {
     expect(integrationPayload.ok).toBe(true);
     expect(JSON.stringify(integrationPayload)).not.toContain("urlHost");
     expect(JSON.stringify(integrationPayload)).not.toContain("writableTables");
+
+    const workflowTracker = await workflowTrackerGet();
+    const workflowTrackerPayload = await workflowTracker.json();
+    const serializedWorkflowTracker = JSON.stringify(workflowTrackerPayload);
+    expect(workflowTracker.headers.get("cache-control")).toBe("no-store");
+    expect(workflowTrackerPayload).toMatchObject({
+      ok: true,
+      data: {
+        currentWorkflowEvents: 1160551,
+        sessionIndexRows: 757,
+      },
+    });
+    expect(workflowTrackerPayload.generatedAt).toEqual(expect.any(String));
+    expect(serializedWorkflowTracker).not.toMatch(/C:\\Users\\|AFTER DIARY QUEEN|Documents\\/i);
+    expect(serializedWorkflowTracker).not.toContain("rawLog");
+    expect(serializedWorkflowTracker).not.toContain("session_index.jsonl");
   });
 
   it("rejects unsupported API content types and unrecognized report provider statuses", async () => {

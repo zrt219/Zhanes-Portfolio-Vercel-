@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Database, FileCode2, GitBranch, ShieldCheck } from "lucide-react";
+import { Copy, Database, FileCode2, GitBranch, RefreshCw, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { liveWorkflowTrackerSnapshot } from "@/data/liveWorkflowTracker";
 import { formatGigabytes, formatMetricNumber, formatSignedMetric } from "@/lib/formatMetrics";
@@ -56,11 +56,21 @@ function selectedMetricDisplay(snapshot: LiveWorkflowTrackerSnapshot, metric: Tr
   };
 }
 
-export function LiveWorkflowEventsTracker({ snapshot = liveWorkflowTrackerSnapshot, compact = false }: LiveWorkflowEventsTrackerProps) {
+type WorkflowTrackerApiResponse = {
+  ok: boolean;
+  data?: LiveWorkflowTrackerSnapshot;
+  generatedAt?: string;
+};
+
+export function LiveWorkflowEventsTracker({ snapshot: initialSnapshot = liveWorkflowTrackerSnapshot, compact = false }: LiveWorkflowEventsTrackerProps) {
+  const [snapshot, setSnapshot] = useState<LiveWorkflowTrackerSnapshot>(initialSnapshot);
   const [metric, setMetric] = useState<TrackerMetric>("workflowEvents");
-  const [selectedIndex, setSelectedIndex] = useState(Math.max(snapshot.history.length - 1, 0));
+  const [selectedIndex, setSelectedIndex] = useState(Math.max(initialSnapshot.history.length - 1, 0));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState("");
+  const [lastClientRefresh, setLastClientRefresh] = useState("");
 
   const summary = useMemo(
     () =>
@@ -105,6 +115,33 @@ export function LiveWorkflowEventsTracker({ snapshot = liveWorkflowTrackerSnapsh
     setSelectedIndex(Math.max(snapshot.history.length - 1, 0));
   }
 
+  async function refreshSnapshot() {
+    setRefreshing(true);
+    setRefreshError("");
+
+    try {
+      const response = await fetch("/api/workflow-tracker", { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error("Tracker endpoint unavailable.");
+      }
+
+      const payload = (await response.json()) as WorkflowTrackerApiResponse;
+      if (!payload.ok || !payload.data) {
+        throw new Error("Tracker endpoint returned an invalid public snapshot.");
+      }
+
+      setSnapshot(payload.data);
+      setSelectedIndex(Math.max(payload.data.history.length - 1, 0));
+      setLastClientRefresh(payload.generatedAt ?? new Date().toISOString());
+    } catch {
+      setSnapshot(initialSnapshot);
+      setSelectedIndex(Math.max(initialSnapshot.history.length - 1, 0));
+      setRefreshError("Refresh unavailable. Showing bundled public-safe snapshot.");
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   async function copySummary() {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
       return;
@@ -143,7 +180,26 @@ export function LiveWorkflowEventsTracker({ snapshot = liveWorkflowTrackerSnapsh
         <div className="flex flex-wrap gap-2">
           <TrackerHeartbeat label="Static evidence snapshot" />
           <TrackerDeltaBadge value={snapshot.currentDelta} />
+          <button
+            type="button"
+            onClick={refreshSnapshot}
+            disabled={refreshing}
+            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-cyan hover:bg-cyan/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan disabled:cursor-wait disabled:opacity-70"
+            aria-label="Refresh public-safe workflow tracker snapshot"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+            {refreshing ? "Refreshing" : "Refresh snapshot"}
+          </button>
         </div>
+      </div>
+      <div className="mt-4 rounded-md border border-line bg-black/25 px-3 py-2 text-sm text-slate-300" aria-live="polite">
+        {refreshError ? (
+          <span className="font-semibold text-white">{refreshError}</span>
+        ) : lastClientRefresh ? (
+          <span>Snapshot refreshed from public API at {new Date(lastClientRefresh).toLocaleString()}.</span>
+        ) : (
+          <span>Manual refresh reads the public-safe snapshot endpoint. It does not expose raw logs or private paths.</span>
+        )}
       </div>
 
       <div className="mt-6 grid gap-4 xl:grid-cols-[0.82fr_1.18fr]">

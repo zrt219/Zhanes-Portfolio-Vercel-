@@ -1,6 +1,6 @@
 "use client";
 
-import type { KeyboardEvent } from "react";
+import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import type { TrackerMetric, WorkflowEventHistoryPoint } from "@/types/liveWorkflowTracker";
 import { formatMetricNumber, formatSignedMetric } from "@/lib/formatMetrics";
 
@@ -51,6 +51,9 @@ function coordinates(history: WorkflowEventHistoryPoint[], metric: TrackerMetric
 }
 
 export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSelectPoint }: LiveWorkflowEventsChartProps) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [dragging, setDragging] = useState(false);
+
   if (history.length === 0) {
     return (
       <div className="rounded-md border border-line bg-black/35 p-5">
@@ -67,12 +70,61 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
   const polyline = points.map((point) => `${point.x},${point.y}`).join(" ");
   const fillPath = `${points[0]?.x ?? padding},${height - padding} ${polyline} ${points[points.length - 1]?.x ?? width - padding},${height - padding}`;
   const selected = history[selectedIndex] ?? history[history.length - 1];
+  const selectedPoint = points[selectedIndex] ?? points[points.length - 1];
   const selectedMetricValue = metricValue(selected, metric);
+
+  function selectNearestPoint(clientX: number) {
+    const bounds = svgRef.current?.getBoundingClientRect();
+    if (!bounds) {
+      return;
+    }
+
+    const ratio = Math.min(Math.max((clientX - bounds.left) / bounds.width, 0), 1);
+    const svgX = ratio * width;
+    const nearest = points.reduce(
+      (closest, point, index) => {
+        const distance = Math.abs(point.x - svgX);
+        return distance < closest.distance ? { index, distance } : closest;
+      },
+      { index: selectedIndex, distance: Number.POSITIVE_INFINITY },
+    );
+    onSelectPoint(nearest.index);
+  }
+
+  function handlePointerDown(event: PointerEvent<SVGSVGElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDragging(true);
+    selectNearestPoint(event.clientX);
+  }
+
+  function handlePointerMove(event: PointerEvent<SVGSVGElement>) {
+    if (dragging) {
+      selectNearestPoint(event.clientX);
+    }
+  }
+
+  function handlePointerEnd(event: PointerEvent<SVGSVGElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setDragging(false);
+  }
 
   function handlePointKey(event: KeyboardEvent<SVGCircleElement>, index: number) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       onSelectPoint(index);
+    }
+  }
+
+  function handleChartKey(event: KeyboardEvent<SVGSVGElement>) {
+    if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+      event.preventDefault();
+      onSelectPoint(Math.max(selectedIndex - 1, 0));
+    }
+    if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+      event.preventDefault();
+      onSelectPoint(Math.min(selectedIndex + 1, history.length - 1));
     }
   }
 
@@ -82,12 +134,25 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan">Active chart metric</p>
           <p className="mt-1 text-sm text-slate-300">{metricDescriptions[metric]}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">Drag timeline to inspect evidence points. Arrow keys move the selected date.</p>
         </div>
         <span className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white">
           Showing {metricLabels[metric]}
         </span>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${metricLabels[metric]} chart for workflow tracker history`} className="h-auto w-full">
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        tabIndex={0}
+        aria-label={`${metricLabels[metric]} draggable chart for workflow tracker history`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onKeyDown={handleChartKey}
+        className="h-auto w-full cursor-grab touch-none select-none outline-none active:cursor-grabbing focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+      >
         <defs>
           <linearGradient id="trackerLine" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0%" stopColor="#67e8f9" stopOpacity="0.7" />
@@ -117,6 +182,11 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
         </text>
         <polygon points={fillPath} fill="url(#trackerFill)" />
         <polyline points={polyline} fill="none" stroke="url(#trackerLine)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" filter="url(#trackerGlow)" />
+        <line x1={selectedPoint.x} x2={selectedPoint.x} y1={padding - 12} y2={height - padding + 10} stroke="#f8fafc" strokeOpacity="0.62" strokeWidth="2" strokeDasharray="5 6" />
+        <rect x={selectedPoint.x - 20} y={padding - 34} width="40" height="18" rx="9" fill="#07111f" stroke="#67e8f9" strokeWidth="2" />
+        <text x={selectedPoint.x} y={padding - 21} textAnchor="middle" fill="#f8fafc" fontSize="10" fontWeight="700">
+          DRAG
+        </text>
         {points.map(({ point, x, y }, index) => {
           const active = index === selectedIndex;
           return (
@@ -133,7 +203,10 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
                 aria-label={`${point.date}: ${metricLabels[metric]} ${formatChartValue(metricValue(point, metric), metric)}`}
                 onMouseEnter={() => onSelectPoint(index)}
                 onFocus={() => onSelectPoint(index)}
-                onClick={() => onSelectPoint(index)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onSelectPoint(index);
+                }}
                 onKeyDown={(event) => handlePointKey(event, index)}
                 className="cursor-pointer outline-none focus-visible:stroke-white"
               />
