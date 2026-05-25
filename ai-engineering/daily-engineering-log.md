@@ -366,3 +366,12 @@
 - Verification performed: `npm run typecheck`, `npm test` (32 tests), `npm run build`, `npm run test:e2e` (21 tests), local `/api/workflow-tracker` HTTP 200 check, and local production restart on port 3017.
 - Evidence/files: `src/app/api/workflow-tracker/route.ts`, `src/components/portfolio/LiveWorkflowEventsTracker.tsx`, `src/components/portfolio/LiveWorkflowEventsChart.tsx`, `src/test/build-doctor.test.ts`, `e2e/build-doctor.spec.ts`.
 - Resume-safe bullet: Added a public-safe tracker API and draggable timeline inspection to an evidence telemetry module, with manual refresh fallback behavior and verified unit, build, and browser coverage.
+
+## 2026-05-25 - Verified Engineering Work
+
+- Built/changed: Smoothed the Live Workflow Events Tracker draggable scrubber so the rail and handle follow pointer movement continuously while the selected value remains snapped to verified dated evidence points.
+- Systems involved: Build Doctor portfolio mainframe, live workflow tracker SVG chart, Playwright E2E suite, local production server on port 3017.
+- Technical skills demonstrated: pointer interaction polish, accessible chart UX, evidence-bound telemetry presentation, browser regression testing, production build verification.
+- Verification performed: `npm run typecheck`, `npm test` (32 tests), `npm run build`, `npm run test:e2e` (21 tests), local production restart on port 3017, and headless Chromium drag sampling confirming intermediate scrubber rail positions with zero console errors.
+- Evidence/files: `src/components/portfolio/LiveWorkflowEventsChart.tsx`, `e2e/build-doctor.spec.ts`.
+- Resume-safe bullet: Improved an evidence telemetry chart with a smooth inspect-only scrubber, preserving source-bound metric selection while adding browser-verified drag and keyboard regression coverage.

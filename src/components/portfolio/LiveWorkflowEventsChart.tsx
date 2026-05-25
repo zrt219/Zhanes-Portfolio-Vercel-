@@ -53,6 +53,7 @@ function coordinates(history: WorkflowEventHistoryPoint[], metric: TrackerMetric
 export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSelectPoint }: LiveWorkflowEventsChartProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [scrubberX, setScrubberX] = useState<number | null>(null);
 
   if (history.length === 0) {
     return (
@@ -72,15 +73,19 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
   const selected = history[selectedIndex] ?? history[history.length - 1];
   const selectedPoint = points[selectedIndex] ?? points[points.length - 1];
   const selectedMetricValue = metricValue(selected, metric);
+  const activeScrubberX = dragging && scrubberX !== null ? scrubberX : selectedPoint.x;
 
-  function selectNearestPoint(clientX: number) {
+  function getScrubberX(clientX: number) {
     const bounds = svgRef.current?.getBoundingClientRect();
     if (!bounds) {
-      return;
+      return null;
     }
 
     const ratio = Math.min(Math.max((clientX - bounds.left) / bounds.width, 0), 1);
-    const svgX = ratio * width;
+    return Math.min(Math.max(ratio * width, padding), width - padding);
+  }
+
+  function selectNearestPoint(svgX: number) {
     const nearest = points.reduce(
       (closest, point, index) => {
         const distance = Math.abs(point.x - svgX);
@@ -91,15 +96,27 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
     onSelectPoint(nearest.index);
   }
 
+  function scrubToClientX(clientX: number) {
+    const nextScrubberX = getScrubberX(clientX);
+    if (nextScrubberX === null) {
+      return;
+    }
+
+    setScrubberX(nextScrubberX);
+    selectNearestPoint(nextScrubberX);
+  }
+
   function handlePointerDown(event: PointerEvent<SVGSVGElement>) {
+    event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     setDragging(true);
-    selectNearestPoint(event.clientX);
+    scrubToClientX(event.clientX);
   }
 
   function handlePointerMove(event: PointerEvent<SVGSVGElement>) {
     if (dragging) {
-      selectNearestPoint(event.clientX);
+      event.preventDefault();
+      scrubToClientX(event.clientX);
     }
   }
 
@@ -108,6 +125,7 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     setDragging(false);
+    setScrubberX(null);
   }
 
   function handlePointKey(event: KeyboardEvent<SVGCircleElement>, index: number) {
@@ -134,10 +152,13 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan">Active chart metric</p>
           <p className="mt-1 text-sm text-slate-300">{metricDescriptions[metric]}</p>
-          <p className="mt-1 text-xs leading-5 text-slate-400">Drag timeline to inspect evidence points. Arrow keys move the selected date.</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">Drag the smooth scrubber rail to inspect evidence points. Arrow keys move the selected date.</p>
         </div>
-        <span className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white">
-          Showing {metricLabels[metric]}
+        <span
+          data-testid="workflow-scrub-state"
+          className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white"
+        >
+          {dragging ? "Scrubbing timeline" : `Showing ${metricLabels[metric]}`}
         </span>
       </div>
       <svg
@@ -150,6 +171,11 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
+        onPointerLeave={(event) => {
+          if (dragging) {
+            handlePointerMove(event);
+          }
+        }}
         onKeyDown={handleChartKey}
         className="h-auto w-full cursor-grab touch-none select-none outline-none active:cursor-grabbing focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
       >
@@ -182,10 +208,31 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
         </text>
         <polygon points={fillPath} fill="url(#trackerFill)" />
         <polyline points={polyline} fill="none" stroke="url(#trackerLine)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" filter="url(#trackerGlow)" />
-        <line x1={selectedPoint.x} x2={selectedPoint.x} y1={padding - 12} y2={height - padding + 10} stroke="#f8fafc" strokeOpacity="0.62" strokeWidth="2" strokeDasharray="5 6" />
-        <rect x={selectedPoint.x - 20} y={padding - 34} width="40" height="18" rx="9" fill="#07111f" stroke="#67e8f9" strokeWidth="2" />
-        <text x={selectedPoint.x} y={padding - 21} textAnchor="middle" fill="#f8fafc" fontSize="10" fontWeight="700">
-          DRAG
+        <rect x={padding} y={padding - 20} width={width - padding * 2} height={height - padding * 2 + 40} rx="16" fill="transparent" pointerEvents="all" />
+        <line
+          data-testid="workflow-scrubber-rail"
+          x1={activeScrubberX}
+          x2={activeScrubberX}
+          y1={padding - 14}
+          y2={height - padding + 12}
+          stroke="#f8fafc"
+          strokeOpacity={dragging ? "0.88" : "0.62"}
+          strokeWidth={dragging ? "3" : "2"}
+          strokeDasharray="5 6"
+          className={dragging ? "" : "transition-all duration-200 ease-out"}
+        />
+        <circle
+          data-testid="workflow-scrubber-handle"
+          cx={activeScrubberX}
+          cy={padding - 24}
+          r={dragging ? "14" : "11"}
+          fill="#07111f"
+          stroke="#67e8f9"
+          strokeWidth="3"
+          className={dragging ? "" : "transition-all duration-200 ease-out"}
+        />
+        <text x={activeScrubberX} y={padding - 20} textAnchor="middle" fill="#f8fafc" fontSize="9" fontWeight="800">
+          {dragging ? "MOVE" : "DRAG"}
         </text>
         {points.map(({ point, x, y }, index) => {
           const active = index === selectedIndex;
@@ -224,6 +271,9 @@ export function LiveWorkflowEventsChart({ history, metric, selectedIndex, onSele
         </p>
         <p className="mt-1 text-xs leading-5 text-slate-400">
           Snapshot context: {formatMetricNumber(selected.workflowEvents)} events, {formatSignedMetric(selected.dailyDelta)} delta, {formatMetricNumber(selected.sessionRows)} sessions.
+        </p>
+        <p className="mt-1 text-xs leading-5 text-slate-400">
+          {dragging ? "Scrubber handle follows your pointer; the selected value snaps to the nearest dated evidence point." : "Drag position is inspect-only; tracker points are not editable."}
         </p>
       </div>
     </div>
