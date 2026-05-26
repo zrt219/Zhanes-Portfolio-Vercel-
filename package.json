@@ -10,6 +10,7 @@
     "test:e2e": "playwright test",
     "test:all": "vitest run && playwright test",
     "typecheck": "tsc --noEmit",
+    "refresh:workflow-tracker": "node scripts/sync-workflow-tracker.mjs",
     "audit:45k": "vitest run --config vitest.audit.config.ts src/audit/premium-audit.test.ts",
     "audit:security": "vitest run --config vitest.audit.config.ts src/audit/security-audit.test.ts",
     "audit:report": "vitest run --config vitest.audit.config.ts src/audit/report-audit.test.ts"

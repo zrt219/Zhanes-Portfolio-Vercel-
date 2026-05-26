@@ -23,7 +23,7 @@ describe("portfolio evidence integrity", () => {
 
       const evidence = readEvidenceFile(stat.sourceFile);
       expect(evidence).toContain(stat.value);
-      expect(stat.lastVerified).toMatch(/^2026-05-24$/);
+      expect(stat.lastVerified).toMatch(/^2026-05-\d{2}$/);
     }
   });
 

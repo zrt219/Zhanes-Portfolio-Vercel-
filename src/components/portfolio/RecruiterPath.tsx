@@ -14,7 +14,7 @@ const steps = [
   {
     time: "0:20",
     title: "Review proof metrics",
-    detail: "Check the May 24 counts, source labels, and dated workflow-event snapshot.",
+    detail: "Check the latest counts, source labels, and dated workflow-event snapshot.",
     href: "#metrics",
     action: "View metrics",
   },

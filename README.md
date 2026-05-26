@@ -41,18 +41,18 @@ The site is intentionally evidence-bound. Public copy and metrics are sourced fr
 
 ## Evidence Snapshot
 
-Latest public-safe metric snapshot: `2026-05-24`
+Latest public-safe metric snapshot: `2026-05-26`
 
 | Metric | Value | Source Label |
 |---|---:|---|
-| Workflow events | 1,160,551 | Workflow Events Tracker |
-| Daily delta | +24,718 | Workflow Events Tracker |
-| Codex sessions | 757 | Daily Evidence Report |
-| Unique thread ids | 757 | Daily Evidence Report |
-| JSONL files | 757 | Daily Evidence Report |
-| Corpus size | 34.1 GB | Workflow Events Tracker |
-| Source-code lines | 600,493 | Daily Evidence Report |
-| Sessions updated today | 44 | Daily Evidence Report |
+| Workflow events | 1,220,405 | Workflow Events Tracker |
+| Daily delta | +2,995 | Workflow Events Tracker |
+| Codex sessions | 859 | Workflow Events Tracker |
+| Unique thread ids | 859 | Workflow Events Tracker |
+| JSONL files | 859 | Workflow Events Tracker |
+| Corpus size | 36.8 GB | Workflow Events Tracker |
+| Source-code lines | 609,629 | Workflow Events Tracker |
+| Sessions updated today | 11 | Workflow Events Tracker |
 | Public GitHub repos scanned | 22 | GitHub Source Memory |
 | Foundry projects | 18 | Daily Evidence Report |
 | Solidity files | 326 | Daily Evidence Report |

@@ -16,7 +16,7 @@ export function HeroMainframe() {
           Agentic workflows, Vercel diagnostics, RAG/eval systems, Solidity proof layers, and working full-stack demos.
         </p>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 [text-wrap:pretty]">
-          Visual style follows the supplied reference, but evidence does not. Public stats and project links are sourced from the May 24 local evidence refresh, public GitHub records, and verified Vercel/demo URLs.
+          Visual style follows the supplied reference, but evidence does not. Public stats and project links are sourced from the latest public-safe evidence refresh, public GitHub records, and verified Vercel/demo URLs.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3" aria-label="Primary portfolio actions">

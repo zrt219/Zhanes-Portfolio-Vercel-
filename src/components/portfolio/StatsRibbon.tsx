@@ -1,5 +1,5 @@
 import { Activity, CheckCircle2, Code2, Database, FileCode2, Github, ShieldCheck, Sigma } from "lucide-react";
-import { portfolioAnalytics, portfolioStats, portfolioStatsLastUpdated } from "@/data/portfolioStats";
+import { portfolioAnalytics, portfolioStats, portfolioStatsLastUpdated, portfolioStatsSnapshotLabel } from "@/data/portfolioStats";
 import { proofChipClass } from "./shared";
 
 const iconByIndex = [Activity, Database, FileCode2, Github, ShieldCheck, Code2, Sigma, CheckCircle2];
@@ -13,7 +13,7 @@ const statCards = [
     sourceLabel: item.sourceLabel,
     sourceFile: item.sourceFile,
     confidence: "High" as const,
-    detail: "Verified summary value from the May 24 evidence snapshot.",
+    detail: "Verified summary value from the latest public-safe evidence snapshot.",
     description: item.label,
     publicSafe: true,
     lastVerified: portfolioStatsLastUpdated,
@@ -26,7 +26,7 @@ export function StatsRibbon() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan">Verified proof stats</p>
-          <h2 className="mt-1 text-xl font-semibold text-white">May 24 evidence snapshot</h2>
+          <h2 className="mt-1 text-xl font-semibold text-white">{portfolioStatsSnapshotLabel}</h2>
         </div>
         <span className={proofChipClass}>
           <CheckCircle2 className="h-3.5 w-3.5 text-cyan" aria-hidden="true" />
