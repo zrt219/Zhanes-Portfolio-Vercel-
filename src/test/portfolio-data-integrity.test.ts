@@ -23,7 +23,7 @@ describe("portfolio evidence integrity", () => {
 
       const evidence = readEvidenceFile(stat.sourceFile);
       expect(evidence).toContain(stat.value);
-      expect(stat.lastVerified).toMatch(/^2026-05-\d{2}$/);
+      expect(stat.lastVerified).toMatch(/^2026-05-30$/);
     }
   });
 
@@ -55,7 +55,7 @@ describe("portfolio evidence integrity", () => {
   it("does not promote repo or reference URLs into public-demo semantics", () => {
     for (const project of projects) {
       expect(project.evidenceRefs.length).toBeGreaterThan(0);
-      expect(project.lastVerified).toBe("2026-05-24");
+      expect(project.lastVerified).toBe("2026-05-30");
       for (const evidenceRef of project.evidenceRefs) {
         expect(evidenceRef).not.toMatch(forbiddenSourceTerms);
         readEvidenceFile(evidenceRef);

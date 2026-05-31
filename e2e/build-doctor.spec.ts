@@ -25,7 +25,7 @@ test("presents the AI engineering portfolio mainframe", async ({ page }) => {
   await expect(page.getByRole("link", { name: /View Workflow Snapshot/i })).toHaveAttribute("href", "#workflow-tracker");
   const workflowTracker = page.locator("#workflow-tracker");
   await expect(workflowTracker.getByRole("heading", { name: /Evidence-maintained telemetry from Codex session logs/i })).toBeVisible();
-  await expect(workflowTracker.getByText("1,220,405").first()).toBeVisible();
+  await expect(workflowTracker.getByText("1,294,788").first()).toBeVisible();
   await expect(page.locator("svg[aria-label='Workflow events draggable chart for workflow tracker history']")).toBeVisible();
   await expect(page.getByText("Not image-derived")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Searchable proof-backed project map." })).toBeVisible();
@@ -97,16 +97,16 @@ test("upgrades live workflow tracker interactions and evidence drawer", async ({
   await expect(tracker.getByText("Codex session rows")).toBeVisible();
   await expect(tracker.getByText("Session index rows aligned to local session logs in the dated evidence refresh.")).toBeVisible();
   await expect(tracker.getByText("Showing Session rows")).toBeVisible();
-  await expect(tracker.getByText("2026-05-26: Session rows 859.")).toBeVisible();
-  await expect(tracker.getByText(/859 sessions/i)).toBeVisible();
+  await expect(tracker.getByText("2026-05-30: Session rows 950.")).toBeVisible();
+  await expect(tracker.getByText(/950 sessions/i)).toBeVisible();
 
   await tracker.getByRole("button", { name: "Daily delta" }).click();
   await expect(page.locator("svg[aria-label='Daily delta draggable chart for workflow tracker history']")).toBeVisible();
   await expect(tracker.getByText("daily event delta")).toBeVisible();
   await expect(tracker.getByText("Workflow-event growth compared with the previous tracker snapshot.")).toBeVisible();
   await expect(tracker.getByText("Showing Daily delta")).toBeVisible();
-  await expect(tracker.getByText("2026-05-26: Daily delta +2,995.")).toBeVisible();
-  await expect(tracker.getByText(/\+2,995 daily delta/i)).toBeVisible();
+  await expect(tracker.getByText("2026-05-30: Daily delta +4,845.")).toBeVisible();
+  await expect(tracker.getByText(/\+4,845 delta/i)).toBeVisible();
 
   await tracker.getByRole("button", { name: "How this works" }).click();
   const drawer = page.getByRole("dialog", { name: "Public-safe tracker sources" });
@@ -118,7 +118,7 @@ test("upgrades live workflow tracker interactions and evidence drawer", async ({
 
   await tracker.getByRole("button", { name: "Copy Live Workflow Events Tracker metric summary" }).click();
   await expect(tracker.getByRole("button", { name: "Copy Live Workflow Events Tracker metric summary" })).toContainText("Copied");
-  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain("1,220,405 workflow events");
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain("1,294,788 workflow events");
 });
 
 test("supports draggable tracker scrubber and public snapshot refresh", async ({ page }) => {
@@ -127,7 +127,7 @@ test("supports draggable tracker scrubber and public snapshot refresh", async ({
   const chart = page.locator("svg[aria-label='Workflow events draggable chart for workflow tracker history']");
   await tracker.scrollIntoViewIfNeeded();
   await expect(chart).toBeVisible();
-  await expect(tracker.getByText("2026-05-26: Workflow events 1,220,405.")).toBeVisible();
+  await expect(tracker.getByText("2026-05-30: Workflow events 1,294,788.")).toBeVisible();
 
   const chartBox = await chart.boundingBox();
   expect(chartBox).toBeTruthy();
@@ -151,7 +151,7 @@ test("supports draggable tracker scrubber and public snapshot refresh", async ({
 
   await chart.focus();
   await page.keyboard.press("ArrowRight");
-  await expect(tracker.getByText("2026-05-24: Workflow events 1,160,551.")).toBeVisible();
+  await expect(tracker.getByText("2026-05-30: Workflow events 1,294,788.")).toBeVisible();
 
   await tracker.getByRole("button", { name: "Refresh public-safe workflow tracker snapshot" }).click();
   await expect(tracker.getByText(/Snapshot refreshed from public API at/i)).toBeVisible();
@@ -170,7 +170,7 @@ test("shows safe fallback copy when tracker refresh endpoint fails", async ({ pa
   const tracker = page.locator("#workflow-tracker");
   await tracker.getByRole("button", { name: "Refresh public-safe workflow tracker snapshot" }).click();
   await expect(tracker.getByText("Refresh unavailable. Showing bundled public-safe snapshot.")).toBeVisible();
-  await expect(tracker.getByText("1,220,405").first()).toBeVisible();
+  await expect(tracker.getByText("1,294,788").first()).toBeVisible();
 });
 
 test("keeps the portfolio directory free of noisy deployment status badges", async ({ page }) => {
@@ -276,7 +276,7 @@ test("filters project directory and preserves proof-status semantics", async ({ 
   expect(chartBox?.width).toBeGreaterThan(300);
   expect(chartBox?.height).toBeGreaterThan(120);
 
-  await expect(page.getByText("Last refreshed 2026-05-26")).toBeVisible();
+  await expect(page.getByText("Last refreshed 2026-05-30")).toBeVisible();
   await expect(page.getByText("Only aggregate metrics are shown. Raw logs, private paths, secrets, and local file contents are not exposed.")).toBeVisible();
 });
 
@@ -328,7 +328,7 @@ test("links evidence ledger source files to public GitHub blobs", async ({ page 
   );
   await expect(ledger.getByRole("link", { name: /Open public-safe source file for Daily evidence report/i })).toHaveAttribute(
     "href",
-    "https://github.com/zrt219/Zhanes-Portfolio-Vercel-/blob/master/evidence/public/daily-evidence-report-2026-05-24.md",
+    "https://github.com/zrt219/Zhanes-Portfolio-Vercel-/blob/master/evidence/public/daily-evidence-report-2026-05-30.md",
   );
   await expect(ledger.getByRole("link", { name: /Open public-safe source file for Codex session summary/i })).toHaveAttribute(
     "href",

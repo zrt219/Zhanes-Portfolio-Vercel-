@@ -8,7 +8,7 @@ export type WorkflowEventPoint = {
   note?: string;
 };
 
-export const workflowEventsLastUpdated = "2026-05-26";
+export const workflowEventsLastUpdated = "2026-05-30";
 export const workflowEventsSourceLabel = "Workflow Events Tracker";
 export const workflowEventsSourceFile = "evidence/public/live-workflow-events-tracker.md";
 
@@ -20,7 +20,7 @@ export const workflowEventHistory: WorkflowEventPoint[] = [
     sessionRows: 696,
     status: "review",
     sourceFile: workflowEventsSourceFile,
-    note: "Baseline tracker snapshot retained for day-over-day comparison.",
+    note: "Tracker history point; retained to show the baseline before later refreshes.",
   },
   {
     date: "2026-05-24",
@@ -40,9 +40,25 @@ export const workflowEventHistory: WorkflowEventPoint[] = [
   },
   {
     date: "2026-05-26",
-    workflowEvents: 1220405,
-    dailyDelta: 2995,
-    sessionRows: 859,
+    workflowEvents: 1228070,
+    dailyDelta: 10660,
+    sessionRows: 881,
+    status: "verified",
+    sourceFile: workflowEventsSourceFile,
+  },
+  {
+    date: "2026-05-27",
+    workflowEvents: 1289943,
+    dailyDelta: 61873,
+    sessionRows: 944,
+    status: "verified",
+    sourceFile: workflowEventsSourceFile,
+  },
+  {
+    date: "2026-05-30",
+    workflowEvents: 1294788,
+    dailyDelta: 4845,
+    sessionRows: 950,
     status: "verified",
     sourceFile: workflowEventsSourceFile,
   },

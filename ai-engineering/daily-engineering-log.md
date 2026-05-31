@@ -394,20 +394,11 @@
 - Evidence/files: `src/components/portfolio/LiveWorkflowEventsChart.tsx`, `e2e/build-doctor.spec.ts`.
 - Resume-safe bullet: Refined an interactive evidence telemetry chart so drag preview movement remains smooth while the active handle and rail stay aligned to verified data nodes, backed by browser geometry checks and E2E regression coverage.
 
-## 2026-05-26 - Verified Engineering Work
+## 2026-05-30 - Verified Engineering Work
 
-- Built/changed: Refreshed Build Doctor's generated audit evidence by rerunning the deterministic premium, security, and report automation, updating the tracked audit summaries to the current verification timestamp, and confirming the deployed Vercel site still matches the local proof state.
-- Systems involved: Build Doctor audit harness, `audit-results/` generated proof data, Vercel production `/build-doctor`, `/api/health`, `/api/eval`, and `/api/integration-health`.
-- Technical skills demonstrated: deterministic audit regeneration, production smoke verification, API contract validation, evidence-refresh discipline, deployment-state confirmation.
-- Verification performed: `npm run audit:45k` (45,000/45,000), `npm run audit:security` (4,000/4,000), `npm run audit:report`, production `/build-doctor` HTTP 200, production `/api/health` READY with eval score 100, production `/api/eval` 16/16 passing, production `/api/integration-health` READY with `SUPABASE_REST`.
-- Evidence/files: `audit-results/summary.json`, `audit-results/security-summary.json`, `ai-engineering/daily-engineering-log.md`, production URL `https://vercel-build-doctor-agent.vercel.app`, production Build Doctor URL `https://vercel-build-doctor-agent.vercel.app/build-doctor`.
-- Resume-safe bullet: Refreshed Build Doctor's generated audit evidence, reran the deterministic 45,000-check and 4,000-check security automation, and confirmed the deployed Vercel app's health, eval, and integration endpoints still match the verified local proof state.
-
-## 2026-05-26 - Verified Engineering Work
-
-- Built/changed: Corrected the Live Workflow Events Tracker source path so portfolio metrics regenerate from the canonical tracker file instead of a stale bundled snapshot, updating current workflow events to 1,220,405 with a 859-row session index and adding `npm run refresh:workflow-tracker` as the repeatable ingestion path.
-- Systems involved: Portfolio mainframe tracker data, public-safe evidence markdown, README evidence snapshot, session summary, Playwright workflow tracker tests, weekly Codex automation, Vercel production deployment workflow.
-- Technical skills demonstrated: source-of-truth correction, generated evidence synchronization, stale metric regression prevention, public/private evidence boundary handling, automated weekly refresh/deploy design.
-- Verification performed: `npm run refresh:workflow-tracker`, `git diff --check`, `npm run typecheck`, `npm test` (32 tests), `npm run build`, `npm run test:e2e` (21 tests), `npm run audit:45k`, `npm run audit:security`, and `npm run audit:report`.
-- Evidence/files: `scripts/sync-workflow-tracker.mjs`, `src/data/liveWorkflowTracker.ts`, `src/data/workflowEvents.ts`, `src/data/portfolioStats.ts`, `evidence/public/live-workflow-events-tracker.md`, `evidence/public/session-index-summary.md`, `README.md`, `e2e/build-doctor.spec.ts`.
-- Resume-safe bullet: Added a canonical evidence ingestion script for a public portfolio telemetry tracker, correcting stale workflow metrics and backing the update with typecheck, unit, build, E2E, and audit verification.
+- Built/changed: Updated the Build Doctor public evidence bundle, portfolio snapshot copy, workflow history data, and regression assertions so the mainframe now reflects the May 30 root evidence refresh instead of the stale May 24 snapshot.
+- Systems involved: Build Doctor `evidence/public` summaries, typed portfolio data, tracker snapshot sources, README proof inventory, Vitest assertions, and Playwright evidence-link coverage.
+- Technical skills demonstrated: evidence synchronization, typed content updates, portfolio proof maintenance, regression test repair, and Next.js verification discipline.
+- Verification performed: `npm run typecheck`, `npm test` (32 tests), and `npm run build`.
+- Evidence/files: `README.md`, `evidence/public/daily-evidence-report-2026-05-30.md`, `evidence/public/live-workflow-events-tracker.md`, `evidence/public/session-index-summary.md`, `evidence/public/github-profile-source-memory.md`, `src/data/portfolioStats.ts`, `src/data/liveWorkflowTracker.ts`, `src/data/workflowEvents.ts`, `src/data/projects.ts`, `src/data/evidenceSources.ts`, `e2e/build-doctor.spec.ts`.
+- Resume-safe bullet: Refreshed a public Next.js engineering portfolio and Build Doctor proof surface with synchronized evidence summaries, updated telemetry snapshots, and passing typecheck, unit tests, and production build verification.
