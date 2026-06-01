@@ -25,6 +25,7 @@ export type PortfolioProjectRecord = {
   signature?: boolean;
   proofBriefSlug?: string;
   signatureDetails?: SignatureProjectDetails;
+  lifecycleStatus?: "alpha";
 };
 
 export const projectsLastUpdated = "2026-05-31";
@@ -254,6 +255,18 @@ const projectRecords: Omit<PortfolioProjectRecord, "evidenceRefs" | "lastVerifie
     proofStatus: "live",
     technicalSignal: "Enterprise-safe agent workflow design and governance patterns.",
     featured: true,
+  },
+  {
+    id: "career-circle",
+    title: "Career Circle",
+    category: "AI / Agentic Systems",
+    valueProposition: "Alpha-stage career workflow surface for role targeting, application flow, and evidence-aware job-search systems.",
+    stack: ["Next.js", "Career workflows", "Evidence UX", "Vercel"],
+    demoUrl: "https://career-circle.vercel.app/",
+    proofStatus: "live",
+    technicalSignal: "Career automation, applied AI product flow, and public alpha deployment discipline.",
+    featured: true,
+    lifecycleStatus: "alpha",
   },
   {
     id: "agentic-rag-memory-digital-twin",

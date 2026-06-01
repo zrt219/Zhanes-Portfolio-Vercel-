@@ -31,6 +31,11 @@ export function FeaturedProofGrid() {
               <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${proofStatusClass(project.proofStatus)}`}>
                 {proofStatusLabel(project.proofStatus)}
               </span>
+              {project.lifecycleStatus === "alpha" ? (
+                <span className="rounded-full border-2 border-yellow-300 bg-yellow-300/18 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-yellow-100 shadow-[0_0_0_1px_rgba(250,204,21,0.18)]" aria-label={`${project.title} alpha status`}>
+                  Alpha
+                </span>
+              ) : null}
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-300">{project.valueProposition}</p>
             <p className="mt-3 text-sm leading-6 text-slate-400">{project.technicalSignal}</p>

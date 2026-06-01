@@ -145,6 +145,13 @@ export const portfolioProjects: PortfolioProject[] = [
     notes: "Approval-gated enterprise agent workflow design with risk scoring and audit handoff.",
   },
   {
+    id: "career-circle",
+    name: "Career Circle",
+    url: "https://career-circle.vercel.app/",
+    category: "AI Career Workflow / Alpha",
+    notes: "Public alpha career workflow surface; listed as alpha until broader proof, tests, and source metadata are promoted.",
+  },
+  {
     id: "agentic-rag-memory-digital-twin",
     name: "Agentic RAG Memory Digital Twin Edge System",
     url: "https://agentic-rag-memory-digital-twin-edg.vercel.app/",
