@@ -21,7 +21,7 @@ export const evidenceSources: EvidenceSource[] = [
     status: "verified",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
     sourceHref: `${githubBlobBase}/evidence/public/live-workflow-events-tracker.md`,
-    detail: "Stores the May 23 to May 30 workflow-event history and current Codex session counts.",
+    detail: "Stores the May 23 to May 31 workflow-event history and current Codex session counts.",
   },
   {
     id: "daily-report",
@@ -29,8 +29,8 @@ export const evidenceSources: EvidenceSource[] = [
     type: "Verification report",
     publicLabel: "Daily Evidence Report",
     status: "verified",
-    sourceFile: "evidence/public/daily-evidence-report-2026-05-30.md",
-    sourceHref: `${githubBlobBase}/evidence/public/daily-evidence-report-2026-05-30.md`,
+    sourceFile: "evidence/public/daily-evidence-report-2026-05-31.md",
+    sourceHref: `${githubBlobBase}/evidence/public/daily-evidence-report-2026-05-31.md`,
     detail: "Refresh report for counts, exports, source scans, GitHub memory, and claim boundaries.",
   },
   {

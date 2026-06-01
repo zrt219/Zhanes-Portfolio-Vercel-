@@ -402,3 +402,12 @@
 - Verification performed: `npm run typecheck`, `npm test` (32 tests), and `npm run build`.
 - Evidence/files: `README.md`, `evidence/public/daily-evidence-report-2026-05-30.md`, `evidence/public/live-workflow-events-tracker.md`, `evidence/public/session-index-summary.md`, `evidence/public/github-profile-source-memory.md`, `src/data/portfolioStats.ts`, `src/data/liveWorkflowTracker.ts`, `src/data/workflowEvents.ts`, `src/data/projects.ts`, `src/data/evidenceSources.ts`, `e2e/build-doctor.spec.ts`.
 - Resume-safe bullet: Refreshed a public Next.js engineering portfolio and Build Doctor proof surface with synchronized evidence summaries, updated telemetry snapshots, and passing typecheck, unit tests, and production build verification.
+
+## 2026-05-31 - Verified Engineering Work
+
+- Built/changed: Updated and deployed the Build Doctor public evidence surface so the Vercel mainframe reflects the May 31 root evidence refresh with 1,307,620 workflow events, 970 Codex sessions, and refreshed public-safe proof summaries.
+- Systems involved: Build Doctor Next.js portfolio, public evidence summaries, workflow tracker API, typed portfolio data, README evidence snapshot, Vitest regression assertions, Vercel production deployment.
+- Technical skills demonstrated: evidence synchronization, public/private proof boundaries, typed telemetry data maintenance, production build verification, Vercel deployment, deployed API smoke testing.
+- Verification performed: `npm run typecheck`, `npm test` (32 tests), `npm run build`, `npm audit --audit-level=moderate`, `npx vercel --prod --yes`, and production `/api/workflow-tracker` smoke check returning `currentWorkflowEvents: 1307620`.
+- Evidence/files: `README.md`, `evidence/public/daily-evidence-report-2026-05-31.md`, `evidence/public/live-workflow-events-tracker.md`, `evidence/public/session-index-summary.md`, `evidence/public/github-profile-source-memory.md`, `src/data/portfolioStats.ts`, `src/data/liveWorkflowTracker.ts`, `src/data/workflowEvents.ts`, `src/data/projects.ts`, `src/data/evidenceSources.ts`, `src/test/build-doctor.test.ts`, `src/test/portfolio-data-integrity.test.ts`, deployment `dpl_8gumdN5ZfMcLbQUYwQLNE7f1P2nx`.
+- Resume-safe bullet: Updated and deployed a public Next.js AI engineering proof surface with refreshed evidence telemetry, source-bound workflow metrics, regression assertions, and production API verification.
