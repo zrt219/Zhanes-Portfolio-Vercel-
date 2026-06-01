@@ -147,10 +147,10 @@ export const portfolioProjects: PortfolioProject[] = [
   {
     id: "agentic-rag-memory-digital-twin",
     name: "Agentic RAG Memory Digital Twin Edge System",
-    url: "https://github.com/zrt219/agentic-rag-memory-digital-twin-edge-system",
+    url: "https://agentic-rag-memory-digital-twin-edg.vercel.app/",
     githubUrl: "https://github.com/zrt219/agentic-rag-memory-digital-twin-edge-system",
     category: "RAG / Digital Twin",
-    notes: "Public repository proof lane for RAG memory and digital-twin edge-system work; demo URL withheld until reverified.",
+    notes: "Public Vercel demo and repository proof lane for RAG memory and digital-twin edge-system work.",
   },
   {
     id: "fuji-byzrt",
