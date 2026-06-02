@@ -3,6 +3,16 @@ import Link from "next/link";
 import { featuredProjects } from "@/data/projects";
 import { compactLinkClass, primaryLinkClass, proofActionLabel, proofStatusClass, proofStatusLabel, sectionShellClass } from "./shared";
 
+const lifecycleChipClass = {
+  alpha: "border-yellow-300 bg-yellow-300/18 text-yellow-100 shadow-[0_0_0_1px_rgba(250,204,21,0.18)]",
+  hackathon: "border-sky-300 bg-sky-400/25 text-sky-50 shadow-[0_0_0_1px_rgba(56,189,248,0.28)]",
+} as const;
+
+const lifecycleLabel = {
+  alpha: "Alpha",
+  hackathon: "Hackathon",
+} as const;
+
 export function FeaturedProofGrid() {
   return (
     <section id="featured-projects" className={sectionShellClass}>
@@ -31,9 +41,12 @@ export function FeaturedProofGrid() {
               <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${proofStatusClass(project.proofStatus)}`}>
                 {proofStatusLabel(project.proofStatus)}
               </span>
-              {project.lifecycleStatus === "alpha" ? (
-                <span className="rounded-full border-2 border-yellow-300 bg-yellow-300/18 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-yellow-100 shadow-[0_0_0_1px_rgba(250,204,21,0.18)]" aria-label={`${project.title} alpha status`}>
-                  Alpha
+              {project.lifecycleStatus ? (
+                <span
+                  className={`rounded-full border-2 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${lifecycleChipClass[project.lifecycleStatus]}`}
+                  aria-label={`${project.title} ${lifecycleLabel[project.lifecycleStatus]} status`}
+                >
+                  {lifecycleLabel[project.lifecycleStatus]}
                 </span>
               ) : null}
             </div>

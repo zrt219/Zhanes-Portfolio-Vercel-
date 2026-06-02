@@ -25,7 +25,7 @@ export type PortfolioProjectRecord = {
   signature?: boolean;
   proofBriefSlug?: string;
   signatureDetails?: SignatureProjectDetails;
-  lifecycleStatus?: "alpha";
+  lifecycleStatus?: "alpha" | "hackathon";
 };
 
 export const projectsLastUpdated = "2026-05-31";
@@ -267,6 +267,19 @@ const projectRecords: Omit<PortfolioProjectRecord, "evidenceRefs" | "lastVerifie
     technicalSignal: "Career automation, applied AI product flow, and public alpha deployment discipline.",
     featured: true,
     lifecycleStatus: "alpha",
+  },
+  {
+    id: "kv-complens",
+    title: "KV-CompLens",
+    category: "AI / Agentic Systems",
+    valueProposition: "Hackathon-built public app for inspectable key-value comparison workflows with deterministic domain modules.",
+    stack: ["Next.js", "React", "TypeScript", "Vitest", "Deterministic domain modules"],
+    githubUrl: "https://github.com/zrt219/KV-CompLens",
+    demoUrl: "https://kv-complens.vercel.app/",
+    proofStatus: "live",
+    technicalSignal: "Public app, source-backed repository, hackathon build log, and engineering source-of-truth documentation.",
+    featured: true,
+    lifecycleStatus: "hackathon",
   },
   {
     id: "agentic-rag-memory-digital-twin",
