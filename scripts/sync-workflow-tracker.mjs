@@ -4,8 +4,10 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "..");
-const defaultSource = path.resolve(repoRoot, "..", "..", "live-workflow-events-tracker.md");
+const defaultSource = path.resolve(repoRoot, "..", "live-workflow-events-tracker.md");
 const sourcePath = path.resolve(process.env.WORKFLOW_TRACKER_SOURCE ?? defaultSource);
+const aiEngineerRoot = path.resolve(repoRoot, "..");
+const rootEvidenceSourceMemory = path.resolve(aiEngineerRoot, "evidence", "source-memory", "github-profile-source-memory.md");
 
 function readSource() {
   if (!fs.existsSync(sourcePath)) {
@@ -60,11 +62,55 @@ function formatSigned(value) {
   return `${value >= 0 ? "+" : "-"}${formatNumber(Math.abs(value))}`;
 }
 
+function findLatestDailyEvidenceReport() {
+  const files = fs
+    .readdirSync(aiEngineerRoot)
+    .filter((name) => /^daily-evidence-report-\d{4}-\d{2}-\d{2}\.md$/.test(name))
+    .sort();
+
+  if (!files.length) {
+    throw new Error(`No daily evidence reports found under ${aiEngineerRoot}`);
+  }
+
+  return path.join(aiEngineerRoot, files[files.length - 1]);
+}
+
+function parseTableMetric(source, label) {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = source.match(new RegExp(`^\\|\\s*${escaped}\\s*\\|\\s*([^|]+?)\\s*\\|`, "m"));
+
+  if (!match?.[1]) {
+    throw new Error(`Missing daily report table metric: ${label}`);
+  }
+
+  return match[1].trim();
+}
+
+function loadDailyReportSnapshot() {
+  const reportPath = findLatestDailyEvidenceReport();
+  const source = fs.readFileSync(reportPath, "utf8");
+  const reportDateMatch = source.match(/^# Daily Codex Evidence Refresh Report - (\d{4}-\d{2}-\d{2})$/m);
+
+  if (!reportDateMatch?.[1]) {
+    throw new Error(`Unable to parse report date from ${reportPath}`);
+  }
+
+  return {
+    reportPath,
+    reportDate: reportDateMatch[1],
+    publicGitHubReposScanned: parseNumber(parseTableMetric(source, "Public GitHub repos scanned")),
+    solidityFilesFound: parseNumber(parseTableMetric(source, "Solidity files found")),
+    foundryProjectsFound: parseNumber(parseTableMetric(source, "Foundry projects found")),
+    aiRagAgentFilesFound: parseNumber(parseTableMetric(source, "AI/RAG/agent files found")),
+    generatedExports: parseNumber(parseTableMetric(source, "Generated exports")),
+  };
+}
+
 function writeFile(relativePath, content) {
   fs.writeFileSync(path.join(repoRoot, relativePath), content.replace(/\n/g, "\r\n"));
 }
 
-function updateReadme(snapshot) {
+function updateReadme(snapshot, dailyReport) {
   const readmePath = path.join(repoRoot, "README.md");
   const readme = fs.readFileSync(readmePath, "utf8");
   const replacement = `## Evidence Snapshot
@@ -81,16 +127,16 @@ Latest public-safe metric snapshot: \`${snapshot.lastRefreshed}\`
 | Corpus size | ${snapshot.corpusSizeGb.toFixed(1)} GB | Workflow Events Tracker |
 | Source-code lines | ${formatNumber(snapshot.sourceCodeLines)} | Workflow Events Tracker |
 | Sessions updated today | ${formatNumber(snapshot.sessionsUpdatedToday)} | Workflow Events Tracker |
-| Public GitHub repos scanned | 22 | GitHub Source Memory |
-| Foundry projects | 18 | Daily Evidence Report |
-| Solidity files | 326 | Daily Evidence Report |
-| AI/RAG/agent files | 12,891 | Daily Evidence Report |
-| Generated exports | 8 | Daily Evidence Report |
+| Public GitHub repos scanned | ${formatNumber(dailyReport.publicGitHubReposScanned)} | GitHub Source Memory |
+| Foundry projects | ${formatNumber(dailyReport.foundryProjectsFound)} | Daily Evidence Report |
+| Solidity files | ${formatNumber(dailyReport.solidityFilesFound)} | Daily Evidence Report |
+| AI/RAG/agent files | ${formatNumber(dailyReport.aiRagAgentFilesFound)} | Daily Evidence Report |
+| Generated exports | ${formatNumber(dailyReport.generatedExports)} | Daily Evidence Report |
 
 Public-safe evidence files:
 
 - \`evidence/public/live-workflow-events-tracker.md\`
-- \`evidence/public/daily-evidence-report-2026-05-24.md\`
+- \`evidence/public/daily-evidence-report-${dailyReport.reportDate}.md\`
 - \`evidence/public/session-index-summary.md\`
 - \`evidence/public/github-profile-source-memory.md\`
 `;
@@ -109,6 +155,7 @@ Public-safe evidence files:
 const source = readSource();
 const history = parseHistory(source);
 const latest = history[history.length - 1];
+const dailyReport = loadDailyReportSnapshot();
 
 const snapshot = {
   lastRefreshed: parseBullet(source, "Last refreshed"),
@@ -172,6 +219,42 @@ writeFile(
 );
 
 writeFile(
+  `evidence/public/daily-evidence-report-${dailyReport.reportDate}.md`,
+  `# Public-Safe Daily Evidence Report Summary - ${dailyReport.reportDate}
+
+- Source: Daily Codex Evidence Refresh Report
+- Scope: public-safe summary for portfolio UI verification
+- Public boundary: private absolute paths, raw session logs, tokens, prompts, and secrets are excluded.
+
+## Live Counts
+
+| Metric | Current Count | Evidence Source | Confidence |
+|---|---:|---|---|
+| Codex sessions found | ${formatNumber(snapshot.sessionIndexRows)} | Rebuilt session index plus stored rollout corpus | High |
+| Live workflow events | ${formatNumber(snapshot.currentWorkflowEvents)} | Non-empty JSONL records across active and archived local session storage | High |
+| Local session logs | ${formatNumber(snapshot.jsonlFiles)} | JSONL files across local Codex session storage | High |
+| Source code lines | ${formatNumber(snapshot.sourceCodeLines)} | Source-extension line count across the scanned workspace | Medium |
+| Sessions updated today | ${formatNumber(snapshot.sessionsUpdatedToday)} | Current-day JSONL rollouts plus rebuilt index rows dated ${snapshot.lastRefreshed} | High |
+| Public GitHub repos scanned | ${formatNumber(dailyReport.publicGitHubReposScanned)} | Effective public GitHub snapshot for zrt219 | High |
+| Solidity files found | ${formatNumber(dailyReport.solidityFilesFound)} | Workspace .sol scan excluding build/dependency directories | Medium |
+| Foundry projects found | ${formatNumber(dailyReport.foundryProjectsFound)} | Workspace foundry.toml scan excluding build/dependency directories | Medium |
+| AI/RAG/agent files found | ${formatNumber(dailyReport.aiRagAgentFilesFound)} | Workspace path scan for AI/agent/RAG/eval terms | Medium |
+| Generated exports | ${formatNumber(dailyReport.generatedExports)} | Root resume/packet/diary DOCX, PDF, HTML, and ATS TXT artifacts | High |
+
+## Evidence Boundary
+
+These counts are a dated evidence snapshot, not live telemetry. The public portfolio must label them as last verified on ${snapshot.lastRefreshed} unless the evidence refresh pipeline runs again.
+`,
+);
+
+if (fs.existsSync(rootEvidenceSourceMemory)) {
+  writeFile(
+    "evidence/public/github-profile-source-memory.md",
+    fs.readFileSync(rootEvidenceSourceMemory, "utf8"),
+  );
+}
+
+writeFile(
   "src/data/workflowEvents.ts",
   `export type WorkflowEventPoint = {
   date: string;
@@ -223,11 +306,11 @@ export const liveWorkflowTrackerSnapshot: LiveWorkflowTrackerSnapshot = {
   sessionsUpdatedToday: ${snapshot.sessionsUpdatedToday},
   localSessionLogs: ${snapshot.jsonlFiles},
   portfolioStatsRefreshed: true,
-  publicGitHubReposScanned: 22,
-  solidityFilesFound: 326,
-  foundryProjectsFound: 18,
-  aiRagAgentFilesFound: 12891,
-  generatedExports: 8,
+  publicGitHubReposScanned: ${dailyReport.publicGitHubReposScanned},
+  solidityFilesFound: ${dailyReport.solidityFilesFound},
+  foundryProjectsFound: ${dailyReport.foundryProjectsFound},
+  aiRagAgentFilesFound: ${dailyReport.aiRagAgentFilesFound},
+  generatedExports: ${dailyReport.generatedExports},
   sourceLabel: "Generated from the canonical local workflow tracker with npm run refresh:workflow-tracker.",
   privacyNote: "Only aggregate metrics are shown. Raw logs, private paths, secrets, and local file contents are not exposed.",
   history: [
@@ -267,7 +350,7 @@ ${history
       label: "Daily Evidence Report",
       sourceType: "daily-report",
       publicSafeLabel: "Public-safe daily refresh summary",
-      lastRefreshed: "2026-05-24",
+      lastRefreshed: "${dailyReport.reportDate}",
       confidence: "medium",
       privatePathRedacted: true,
       supports: [
@@ -338,7 +421,7 @@ writeFile(
 };
 
 export const portfolioStatsLastUpdated = "${snapshot.lastRefreshed}";
-export const portfolioStatsSnapshotLabel = "May 26 Codex Evidence Refresh";
+export const portfolioStatsSnapshotLabel = "${snapshot.lastRefreshed} Codex Evidence Refresh";
 export const portfolioStatsPrivacyBoundary =
   "Public UI shows dated snapshot counts and source labels only. Private evidence contents, local paths, credentials, and sensitive logs are excluded.";
 
@@ -385,8 +468,8 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "public-repos",
     label: "Public GitHub repos scanned",
-    value: "22",
-    displayValue: "22",
+    value: "${formatNumber(dailyReport.publicGitHubReposScanned)}",
+    displayValue: "${formatNumber(dailyReport.publicGitHubReposScanned)}",
     sourceLabel: "GitHub Source Memory",
     sourceFile: "evidence/public/github-profile-source-memory.md",
     confidence: "High",
@@ -398,61 +481,61 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "foundry-projects",
     label: "Foundry projects",
-    value: "18",
-    displayValue: "18",
+    value: "${formatNumber(dailyReport.foundryProjectsFound)}",
+    displayValue: "${formatNumber(dailyReport.foundryProjectsFound)}",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-05-24.md",
+    sourceFile: "evidence/public/daily-evidence-report-${dailyReport.reportDate}.md",
     confidence: "Medium",
     detail: "Workspace foundry.toml scan excluding build and dependency directories.",
-    description: "Foundry project count from the May 24 workspace scan.",
+    description: "Foundry project count from the ${dailyReport.reportDate} workspace scan.",
     publicSafe: true,
-    lastVerified: "2026-05-24",
+    lastVerified: portfolioStatsLastUpdated,
   },
   {
     id: "solidity-files",
     label: "Solidity files",
-    value: "326",
-    displayValue: "326",
+    value: "${formatNumber(dailyReport.solidityFilesFound)}",
+    displayValue: "${formatNumber(dailyReport.solidityFilesFound)}",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-05-24.md",
+    sourceFile: "evidence/public/daily-evidence-report-${dailyReport.reportDate}.md",
     confidence: "Medium",
     detail: "Workspace .sol scan excluding build and dependency directories.",
     description: "Solidity files counted in the evidence workspace scan.",
     publicSafe: true,
-    lastVerified: "2026-05-24",
+    lastVerified: portfolioStatsLastUpdated,
   },
   {
     id: "ai-rag-agent-files",
     label: "AI/RAG/agent files",
-    value: "12,891",
-    displayValue: "12,891",
+    value: "${formatNumber(dailyReport.aiRagAgentFilesFound)}",
+    displayValue: "${formatNumber(dailyReport.aiRagAgentFilesFound)}",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-05-24.md",
+    sourceFile: "evidence/public/daily-evidence-report-${dailyReport.reportDate}.md",
     confidence: "Medium",
     detail: "Path scan for AI, agent, RAG, and eval terms across the workspace.",
     description: "AI, agent, RAG, and eval file-name/path matches from the scan.",
     publicSafe: true,
-    lastVerified: "2026-05-24",
+    lastVerified: portfolioStatsLastUpdated,
   },
   {
     id: "generated-exports",
     label: "Generated exports",
-    value: "8",
-    displayValue: "8",
+    value: "${formatNumber(dailyReport.generatedExports)}",
+    displayValue: "${formatNumber(dailyReport.generatedExports)}",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-05-24.md",
+    sourceFile: "evidence/public/daily-evidence-report-${dailyReport.reportDate}.md",
     confidence: "High",
     detail: "Root resume, application packet, diary, HTML, DOCX, PDF, and ATS text artifacts.",
     description: "Generated public-safe resume/application artifacts recorded by the refresh.",
     publicSafe: true,
-    lastVerified: "2026-05-24",
+    lastVerified: portfolioStatsLastUpdated,
   },
 ];
 
 export const portfolioStatsConflictNotes = [
   "Workflow tracker metrics are generated from the canonical tracker file with npm run refresh:workflow-tracker.",
   "GitHub source memory is a public fallback snapshot, not a private repository inventory.",
-  "Resume markdown still contains an older 20-repo phrase; the May 24 GitHub source memory verifies 22 public repos for this UI.",
+  "Public GitHub repo counts come from recruiter-safe source memory and exclude private inventory.",
 ];
 
 export const portfolioAnalytics = [
@@ -488,7 +571,7 @@ export const portfolioAnalytics = [
 `,
 );
 
-updateReadme(snapshot);
+updateReadme(snapshot, dailyReport);
 
 console.log(`Synced workflow tracker from ${sourcePath}`);
 console.log(`Current workflow events: ${formatNumber(snapshot.currentWorkflowEvents)}`);

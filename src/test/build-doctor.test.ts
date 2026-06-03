@@ -553,8 +553,8 @@ describe("Vercel Build Doctor deterministic engine", () => {
     expect(workflowTrackerPayload).toMatchObject({
       ok: true,
       data: {
-        currentWorkflowEvents: 1307620,
-        sessionIndexRows: 970,
+        currentWorkflowEvents: 1331817,
+        sessionIndexRows: 1010,
       },
     });
     expect(workflowTrackerPayload.generatedAt).toEqual(expect.any(String));

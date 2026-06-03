@@ -1,11 +1,10 @@
-# Public-Safe Session Index Summary
+# Public-Safe Codex Session Index Summary
 
-- Source: rebuilt local Codex session index
-- Last refreshed: 2026-05-31
-- Session index rows: 970
-- Unique thread ids: 970
-- JSONL files: 970
-
-## Public Boundary
-
-This summary exists so the portfolio can prove the displayed count without exposing raw session JSONL, prompts, private paths, secrets, tokens, or local message contents.
+- Last refreshed: 2026-06-01
+- Session index rows: 1,010
+- Unique thread ids: 1,010
+- JSONL files: 1,010
+- Corpus size: 42.6 GB
+- Source code lines: 613,768
+- Public boundary: aggregate counts only; raw session rows, private paths, prompts, and secrets are excluded.
+- Source: `evidence/public/live-workflow-events-tracker.md`

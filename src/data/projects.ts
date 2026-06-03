@@ -28,8 +28,8 @@ export type PortfolioProjectRecord = {
   lifecycleStatus?: "alpha" | "hackathon";
 };
 
-export const projectsLastUpdated = "2026-05-31";
-export const projectsSourceLabel = "github-profile-source-memory.md + May 31 evidence report";
+export const projectsLastUpdated = "2026-06-01";
+export const projectsSourceLabel = "github-profile-source-memory.md + June 1 evidence report";
 
 export type SignatureProjectDetails = {
   slug: string;
@@ -118,7 +118,7 @@ const signatureDetailsById: Record<string, SignatureProjectDetails> = {
     evidenceSources: [
       { label: "Public demo", detail: "Live Resume Evidence RAG Auditor app.", href: "https://resume-evidence-rag-auditor.vercel.app" },
       { label: "Public repository", detail: "Resume Evidence RAG Auditor source repository.", href: "https://github.com/zrt219/resume-evidence-rag-auditor" },
-      { label: "Daily evidence report", detail: "Public-safe evidence refresh summary.", href: `${githubBlobBase}/evidence/public/daily-evidence-report-2026-05-31.md` },
+      { label: "Daily evidence report", detail: "Public-safe evidence refresh summary.", href: `${githubBlobBase}/evidence/public/daily-evidence-report-2026-06-01.md` },
     ],
     qaStatus: [
       { label: "Project status", result: "Live public demo and repository linked from the mainframe." },
@@ -168,7 +168,7 @@ const signatureDetailsById: Record<string, SignatureProjectDetails> = {
     evidenceSources: [
       { label: "Public demo", detail: "Live Enterprise Agent Workflow Studio.", href: "https://enterprise-agent-workflow-studio.vercel.app" },
       { label: "Public repository", detail: "Enterprise Agent Workflow Studio source repository.", href: "https://github.com/zrt219/enterprise-agent-workflow-studio" },
-      { label: "Daily evidence report", detail: "Public-safe evidence refresh summary.", href: `${githubBlobBase}/evidence/public/daily-evidence-report-2026-05-31.md` },
+      { label: "Daily evidence report", detail: "Public-safe evidence refresh summary.", href: `${githubBlobBase}/evidence/public/daily-evidence-report-2026-06-01.md` },
     ],
     qaStatus: [
       { label: "Project status", result: "Live public demo and repository linked from the mainframe." },
@@ -504,7 +504,7 @@ function urlKindForProject(project: Omit<PortfolioProjectRecord, "evidenceRefs" 
 function evidenceRefsForProject(project: Omit<PortfolioProjectRecord, "evidenceRefs" | "lastVerified" | "confidence" | "urlKind">) {
   const refs = ["evidence/public/github-profile-source-memory.md"];
   if (project.proofStatus === "local-evidence") {
-    refs.push("evidence/public/daily-evidence-report-2026-05-31.md");
+    refs.push("evidence/public/daily-evidence-report-2026-06-01.md");
   }
   return refs;
 }
