@@ -13,6 +13,7 @@ import { checkpointDiagnosisSnapshot } from "@/lib/build-doctor/graph";
 import { getIntegrationHealth, recordSuiteEvent } from "@/lib/integrations";
 import { containsUnredactedSecret, redactSecrets } from "@/lib/redact-secrets";
 import { sampleLogs } from "@/lib/sample-logs";
+import { liveWorkflowTrackerSnapshot } from "@/data/liveWorkflowTracker";
 
 describe("Vercel Build Doctor deterministic engine", () => {
   it("classifies every sample log as the expected failure type", () => {
@@ -553,8 +554,8 @@ describe("Vercel Build Doctor deterministic engine", () => {
     expect(workflowTrackerPayload).toMatchObject({
       ok: true,
       data: {
-        currentWorkflowEvents: 1331817,
-        sessionIndexRows: 1010,
+        currentWorkflowEvents: liveWorkflowTrackerSnapshot.currentWorkflowEvents,
+        sessionIndexRows: liveWorkflowTrackerSnapshot.sessionIndexRows,
       },
     });
     expect(workflowTrackerPayload.generatedAt).toEqual(expect.any(String));

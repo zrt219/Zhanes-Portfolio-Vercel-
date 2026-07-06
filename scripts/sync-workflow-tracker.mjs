@@ -4,9 +4,9 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "..");
-const defaultSource = path.resolve(repoRoot, "..", "live-workflow-events-tracker.md");
+const aiEngineerRoot = path.resolve(repoRoot, "..", "..");
+const defaultSource = path.resolve(aiEngineerRoot, "live-workflow-events-tracker.md");
 const sourcePath = path.resolve(process.env.WORKFLOW_TRACKER_SOURCE ?? defaultSource);
-const aiEngineerRoot = path.resolve(repoRoot, "..");
 const rootEvidenceSourceMemory = path.resolve(aiEngineerRoot, "evidence", "source-memory", "github-profile-source-memory.md");
 
 function readSource() {

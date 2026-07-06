@@ -12,8 +12,8 @@ export type PortfolioStat = {
   lastVerified: string;
 };
 
-export const portfolioStatsLastUpdated = "2026-06-01";
-export const portfolioStatsSnapshotLabel = "2026-06-01 Codex Evidence Refresh";
+export const portfolioStatsLastUpdated = "2026-07-05";
+export const portfolioStatsSnapshotLabel = "2026-07-05 Codex Evidence Refresh";
 export const portfolioStatsPrivacyBoundary =
   "Public UI shows dated snapshot counts and source labels only. Private evidence contents, local paths, credentials, and sensitive logs are excluded.";
 
@@ -21,8 +21,8 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "workflow-events",
     label: "Workflow events",
-    value: "1,331,817",
-    displayValue: "1,331,817",
+    value: "1,331,820",
+    displayValue: "1,331,820",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
     confidence: "High",
@@ -47,8 +47,8 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "source-lines",
     label: "Source-code lines",
-    value: "613,768",
-    displayValue: "613,768",
+    value: "676,615",
+    displayValue: "676,615",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
     confidence: "Medium",
@@ -60,8 +60,8 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "public-repos",
     label: "Public GitHub repos scanned",
-    value: "22",
-    displayValue: "22",
+    value: "34",
+    displayValue: "34",
     sourceLabel: "GitHub Source Memory",
     sourceFile: "evidence/public/github-profile-source-memory.md",
     confidence: "High",
@@ -76,10 +76,10 @@ export const portfolioStats: PortfolioStat[] = [
     value: "18",
     displayValue: "18",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-06-01.md",
+    sourceFile: "evidence/public/daily-evidence-report-2026-07-05.md",
     confidence: "Medium",
     detail: "Workspace foundry.toml scan excluding build and dependency directories.",
-    description: "Foundry project count from the 2026-06-01 workspace scan.",
+    description: "Foundry project count from the 2026-07-05 workspace scan.",
     publicSafe: true,
     lastVerified: portfolioStatsLastUpdated,
   },
@@ -89,7 +89,7 @@ export const portfolioStats: PortfolioStat[] = [
     value: "326",
     displayValue: "326",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-06-01.md",
+    sourceFile: "evidence/public/daily-evidence-report-2026-07-05.md",
     confidence: "Medium",
     detail: "Workspace .sol scan excluding build and dependency directories.",
     description: "Solidity files counted in the evidence workspace scan.",
@@ -99,10 +99,10 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "ai-rag-agent-files",
     label: "AI/RAG/agent files",
-    value: "13,122",
-    displayValue: "13,122",
+    value: "13,550",
+    displayValue: "13,550",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-06-01.md",
+    sourceFile: "evidence/public/daily-evidence-report-2026-07-05.md",
     confidence: "Medium",
     detail: "Path scan for AI, agent, RAG, and eval terms across the workspace.",
     description: "AI, agent, RAG, and eval file-name/path matches from the scan.",
@@ -115,7 +115,7 @@ export const portfolioStats: PortfolioStat[] = [
     value: "8",
     displayValue: "8",
     sourceLabel: "Daily Evidence Report",
-    sourceFile: "evidence/public/daily-evidence-report-2026-06-01.md",
+    sourceFile: "evidence/public/daily-evidence-report-2026-07-05.md",
     confidence: "High",
     detail: "Root resume, application packet, diary, HTML, DOCX, PDF, and ATS text artifacts.",
     description: "Generated public-safe resume/application artifacts recorded by the refresh.",
@@ -134,7 +134,7 @@ export const portfolioAnalytics = [
   {
     id: "daily-delta",
     label: "Daily event delta",
-    value: "+24,197",
+    value: "-2",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
   },
@@ -148,14 +148,14 @@ export const portfolioAnalytics = [
   {
     id: "corpus-size",
     label: "Corpus size",
-    value: "42.6 GB",
+    value: "14.6 GB",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
   },
   {
     id: "sessions-updated",
     label: "Sessions updated today",
-    value: "37",
+    value: "3",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
   },
