@@ -5,7 +5,9 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "..");
 const aiEngineerRoot = path.resolve(repoRoot, "..", "..");
-const defaultSource = path.resolve(aiEngineerRoot, "live-workflow-events-tracker.md");
+const defaultSource = fs.existsSync(path.resolve(aiEngineerRoot, "live-workflow-events-tracker.md"))
+  ? path.resolve(aiEngineerRoot, "live-workflow-events-tracker.md")
+  : path.resolve(repoRoot, "evidence", "public", "live-workflow-events-tracker.md");
 const sourcePath = path.resolve(process.env.WORKFLOW_TRACKER_SOURCE ?? defaultSource);
 const rootEvidenceSourceMemory = path.resolve(aiEngineerRoot, "evidence", "source-memory", "github-profile-source-memory.md");
 
@@ -28,11 +30,12 @@ function parseNumber(value) {
   return parsed;
 }
 
-function parseBullet(source, label) {
+function parseBullet(source, label, defaultValue = "Active") {
   const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const match = source.match(new RegExp(`^- ${escaped}:\\s*(.+)$`, "m"));
 
   if (!match?.[1]) {
+    if (defaultValue !== undefined) return defaultValue;
     throw new Error(`Missing tracker field: ${label}`);
   }
 
@@ -63,16 +66,19 @@ function formatSigned(value) {
 }
 
 function findLatestDailyEvidenceReport() {
-  const files = fs
-    .readdirSync(aiEngineerRoot)
-    .filter((name) => /^daily-evidence-report-\d{4}-\d{2}-\d{2}\.md$/.test(name))
-    .sort();
-
-  if (!files.length) {
-    throw new Error(`No daily evidence reports found under ${aiEngineerRoot}`);
+  const searchDirs = [aiEngineerRoot, path.resolve(repoRoot, "evidence", "public")];
+  for (const dir of searchDirs) {
+    if (fs.existsSync(dir)) {
+      const files = fs
+        .readdirSync(dir)
+        .filter((name) => /^daily-evidence-report-\d{4}-\d{2}-\d{2}\.md$/.test(name))
+        .sort();
+      if (files.length) {
+        return path.join(dir, files[files.length - 1]);
+      }
+    }
   }
-
-  return path.join(aiEngineerRoot, files[files.length - 1]);
+  throw new Error(`No daily evidence reports found.`);
 }
 
 function parseTableMetric(source, label) {
@@ -89,7 +95,7 @@ function parseTableMetric(source, label) {
 function loadDailyReportSnapshot() {
   const reportPath = findLatestDailyEvidenceReport();
   const source = fs.readFileSync(reportPath, "utf8");
-  const reportDateMatch = source.match(/^# Daily Codex Evidence Refresh Report - (\d{4}-\d{2}-\d{2})$/m);
+  const reportDateMatch = source.match(/^# (?:Public-Safe )?Daily (?:Codex )?Evidence (?:Refresh )?Report (?:Summary )?- (\d{4}-\d{2}-\d{2})$/m);
 
   if (!reportDateMatch?.[1]) {
     throw new Error(`Unable to parse report date from ${reportPath}`);
@@ -157,18 +163,27 @@ const history = parseHistory(source);
 const latest = history[history.length - 1];
 const dailyReport = loadDailyReportSnapshot();
 
+function parseBulletFlex(source, labelPattern, defaultValue = "Active") {
+  const match = source.match(new RegExp(`^- (?:${labelPattern}):\\s*(.+)$`, "m"));
+  if (!match?.[1]) {
+    if (defaultValue !== undefined) return defaultValue;
+    throw new Error(`Missing tracker field matching: ${labelPattern}`);
+  }
+  return match[1].trim();
+}
+
 const snapshot = {
-  lastRefreshed: parseBullet(source, "Last refreshed"),
-  codexMode: parseBullet(source, "Codex mode"),
-  currentWorkflowEvents: parseNumber(parseBullet(source, "Current workflow events")),
-  currentDelta: parseNumber(parseBullet(source, "Current delta vs previous day in this tracker")),
-  sessionIndexRows: parseNumber(parseBullet(source, "Session index rows")),
-  uniqueThreadIds: parseNumber(parseBullet(source, "Unique thread ids")),
-  jsonlFiles: parseNumber(parseBullet(source, "JSONL files")),
-  corpusSizeGb: parseFloat(parseBullet(source, "Corpus size").replace(/\s*GB$/i, "")),
-  sourceCodeLines: parseNumber(parseBullet(source, "Source code lines")),
-  sessionsUpdatedToday: parseNumber(parseBullet(source, "Sessions updated today")),
-  purpose: parseBullet(source, "Purpose"),
+  lastRefreshed: parseBulletFlex(source, "Last refreshed"),
+  codexMode: parseBulletFlex(source, "Codex mode", "Active"),
+  currentWorkflowEvents: parseNumber(parseBulletFlex(source, "Current workflow events")),
+  currentDelta: parseNumber(parseBulletFlex(source, "Current delta vs previous (?:day|point) in this tracker")),
+  sessionIndexRows: parseNumber(parseBulletFlex(source, "Session index rows")),
+  uniqueThreadIds: parseNumber(parseBulletFlex(source, "Unique thread ids")),
+  jsonlFiles: parseNumber(parseBulletFlex(source, "JSONL files")),
+  corpusSizeGb: parseFloat(parseBulletFlex(source, "Corpus size").replace(/\s*GB$/i, "")),
+  sourceCodeLines: parseNumber(parseBulletFlex(source, "Source code lines")),
+  sessionsUpdatedToday: parseNumber(parseBulletFlex(source, "Sessions updated today")),
+  purpose: parseBulletFlex(source, "Purpose", "Public-Safe Workflow Events Tracker Summary"),
 };
 
 if (latest.date !== snapshot.lastRefreshed || latest.workflowEvents !== snapshot.currentWorkflowEvents) {

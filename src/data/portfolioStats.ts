@@ -12,8 +12,8 @@ export type PortfolioStat = {
   lastVerified: string;
 };
 
-export const portfolioStatsLastUpdated = "2026-07-05";
-export const portfolioStatsSnapshotLabel = "2026-07-05 Codex Evidence Refresh";
+export const portfolioStatsLastUpdated = "2026-08-23";
+export const portfolioStatsSnapshotLabel = "2026-08-23 Codex Evidence Refresh";
 export const portfolioStatsPrivacyBoundary =
   "Public UI shows dated snapshot counts and source labels only. Private evidence contents, local paths, credentials, and sensitive logs are excluded.";
 
@@ -21,8 +21,8 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "workflow-events",
     label: "Workflow events",
-    value: "1,331,820",
-    displayValue: "1,331,820",
+    value: "1,335,420",
+    displayValue: "1,335,420",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
     confidence: "High",
@@ -34,8 +34,8 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "codex-sessions",
     label: "Codex sessions",
-    value: "1,010",
-    displayValue: "1,010",
+    value: "1,018",
+    displayValue: "1,018",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
     confidence: "High",
@@ -47,8 +47,8 @@ export const portfolioStats: PortfolioStat[] = [
   {
     id: "source-lines",
     label: "Source-code lines",
-    value: "676,615",
-    displayValue: "676,615",
+    value: "681,420",
+    displayValue: "681,420",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
     confidence: "Medium",
@@ -134,28 +134,28 @@ export const portfolioAnalytics = [
   {
     id: "daily-delta",
     label: "Daily event delta",
-    value: "-2",
+    value: "+3,600",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
   },
   {
     id: "jsonl-files",
     label: "JSONL logs",
-    value: "1,010",
+    value: "1,018",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
   },
   {
     id: "corpus-size",
     label: "Corpus size",
-    value: "14.6 GB",
+    value: "14.8 GB",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
   },
   {
     id: "sessions-updated",
     label: "Sessions updated today",
-    value: "3",
+    value: "8",
     sourceLabel: "Workflow Events Tracker",
     sourceFile: "evidence/public/live-workflow-events-tracker.md",
   },

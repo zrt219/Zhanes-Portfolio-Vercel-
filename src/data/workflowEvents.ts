@@ -8,7 +8,7 @@ export type WorkflowEventPoint = {
   note?: string;
 };
 
-export const workflowEventsLastUpdated = "2026-07-05";
+export const workflowEventsLastUpdated = "2026-08-23";
 export const workflowEventsSourceLabel = "Workflow Events Tracker";
 export const workflowEventsSourceFile = "evidence/public/live-workflow-events-tracker.md";
 
@@ -331,6 +331,14 @@ export const workflowEventHistory: WorkflowEventPoint[] = [
     workflowEvents: 1331820,
     dailyDelta: -2,
     sessionRows: 1010,
+    status: "verified",
+    sourceFile: workflowEventsSourceFile,
+  },
+  {
+    date: "2026-08-23",
+    workflowEvents: 1335420,
+    dailyDelta: 3600,
+    sessionRows: 1018,
     status: "verified",
     sourceFile: workflowEventsSourceFile,
   },
