@@ -174,7 +174,10 @@ function parseBulletFlex(source, labelPattern, defaultValue = "Active") {
 
 const snapshot = {
   lastRefreshed: parseBulletFlex(source, "Last refreshed"),
-  codexMode: parseBulletFlex(source, "Codex mode", "Active"),
+  codexMode: (function (val) {
+    if (val === "full" || val === "partial") return val;
+    return "full";
+  })(parseBulletFlex(source, "Codex mode", "full")),
   currentWorkflowEvents: parseNumber(parseBulletFlex(source, "Current workflow events")),
   currentDelta: parseNumber(parseBulletFlex(source, "Current delta vs previous (?:day|point) in this tracker")),
   sessionIndexRows: parseNumber(parseBulletFlex(source, "Session index rows")),

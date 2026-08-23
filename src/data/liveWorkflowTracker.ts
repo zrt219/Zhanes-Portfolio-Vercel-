@@ -2,7 +2,7 @@ import type { LiveWorkflowTrackerSnapshot } from "@/types/liveWorkflowTracker";
 
 export const liveWorkflowTrackerSnapshot: LiveWorkflowTrackerSnapshot = {
   lastRefreshed: "2026-08-23",
-  codexMode: "Active",
+  codexMode: "full",
   currentWorkflowEvents: 1335420,
   currentDelta: 3600,
   sessionIndexRows: 1018,
