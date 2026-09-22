@@ -1,12 +1,15 @@
 "use client";
 
-import { Copy, Database, FileCode2, GitBranch, RefreshCw, ShieldCheck } from "lucide-react";
+import { Calendar, Clock, Copy, Database, FileCode2, GitBranch, RefreshCw, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { liveWorkflowTrackerSnapshot } from "@/data/liveWorkflowTracker";
 import { formatGigabytes, formatMetricNumber, formatSignedMetric } from "@/lib/formatMetrics";
+import { useSafeReducedMotion } from "@/lib/motion";
+import { useWorkflowTracker } from "@/lib/useWorkflowTracker";
 import type { LiveWorkflowTrackerSnapshot, TrackerMetric } from "@/types/liveWorkflowTracker";
+import { motion } from "framer-motion";
 import { EvidenceSourceBadge } from "./EvidenceSourceBadge";
-import { LiveWorkflowEventsChart } from "./LiveWorkflowEventsChart";
+import { LiveWorkflowEventsChart, type TrackerTimeframe } from "./LiveWorkflowEventsChart";
 import { TrackerDeltaBadge } from "./TrackerDeltaBadge";
 import { TrackerEvidenceDrawer } from "./TrackerEvidenceDrawer";
 import { TrackerHeartbeat } from "./TrackerHeartbeat";
@@ -22,6 +25,13 @@ const metricOptions: Array<{ id: TrackerMetric; label: string }> = [
   { id: "workflowEvents", label: "Workflow events" },
   { id: "sessionRows", label: "Session rows" },
   { id: "dailyDelta", label: "Daily delta" },
+];
+
+const timeframeOptions: Array<{ id: TrackerTimeframe; label: string }> = [
+  { id: "all", label: "All (May–Sept)" },
+  { id: "may-jun", label: "May–Jun" },
+  { id: "jul-aug", label: "Jul–Aug" },
+  { id: "sept-live", label: "Sept Live" },
 ];
 
 const pipelineSteps = ["Codex logs", "Session index", "Event counter", "Markdown tracker", "Portfolio stats", "Public UI"];
@@ -56,21 +66,71 @@ function selectedMetricDisplay(snapshot: LiveWorkflowTrackerSnapshot, metric: Tr
   };
 }
 
-type WorkflowTrackerApiResponse = {
-  ok: boolean;
-  data?: LiveWorkflowTrackerSnapshot;
-  generatedAt?: string;
-};
+export function LiveWorkflowEventsTracker({
+  snapshot: initialSnapshot = liveWorkflowTrackerSnapshot,
+  compact = false,
+}: LiveWorkflowEventsTrackerProps) {
+  const isReduced = useSafeReducedMotion();
 
-export function LiveWorkflowEventsTracker({ snapshot: initialSnapshot = liveWorkflowTrackerSnapshot, compact = false }: LiveWorkflowEventsTrackerProps) {
-  const [snapshot, setSnapshot] = useState<LiveWorkflowTrackerSnapshot>(initialSnapshot);
+  // Wire up with real-time polling hook from Subagent 2
+  const {
+    snapshot,
+    isRefreshing,
+    errorMessage,
+    lastClientRefresh,
+    relativeSyncTime,
+    lastSyncedAt,
+    isFallback,
+    syncNow,
+  } = useWorkflowTracker({ initialSnapshot });
+
   const [metric, setMetric] = useState<TrackerMetric>("workflowEvents");
-  const [selectedIndex, setSelectedIndex] = useState(Math.max(initialSnapshot.history.length - 1, 0));
+  const [timeframe, setTimeframe] = useState<TrackerTimeframe>("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [refreshError, setRefreshError] = useState("");
-  const [lastClientRefresh, setLastClientRefresh] = useState("");
+
+  // Timeframe filtering across May-Sept contiguous timeline
+  const filteredHistory = useMemo(() => {
+    const allHistory = snapshot.history;
+    if (!allHistory || allHistory.length === 0) return [];
+
+    if (timeframe === "may-jun") {
+      const subset = allHistory.filter((p) => p.date >= "2026-05-01" && p.date <= "2026-06-30");
+      return subset.length > 0 ? subset : allHistory;
+    }
+    if (timeframe === "jul-aug") {
+      const subset = allHistory.filter((p) => p.date >= "2026-07-01" && p.date <= "2026-08-31");
+      return subset.length > 0 ? subset : allHistory;
+    }
+    if (timeframe === "sept-live") {
+      const subset = allHistory.filter((p) => p.date >= "2026-09-01");
+      return subset.length > 0 ? subset : allHistory.slice(-Math.min(allHistory.length, 7));
+    }
+    return allHistory;
+  }, [snapshot.history, timeframe]);
+
+  const [selectedIndex, setSelectedIndex] = useState<number>(() =>
+    Math.max(initialSnapshot.history.length - 1, 0),
+  );
+
+  // Safe selected index bounded within filtered history
+  const safeSelectedIndex = useMemo(() => {
+    if (filteredHistory.length === 0) return 0;
+    return Math.min(Math.max(0, selectedIndex), filteredHistory.length - 1);
+  }, [selectedIndex, filteredHistory.length]);
+
+  // Relative sync timestamp display ('Synced 12s ago' / 'Syncing now...')
+  const syncDisplayText = useMemo(() => {
+    if (isRefreshing) return "Syncing now...";
+    if (!lastSyncedAt && !lastClientRefresh) return "Synced just now";
+    return relativeSyncTime
+      .replace(" seconds ago", "s ago")
+      .replace(" second ago", "s ago")
+      .replace(" minutes ago", "m ago")
+      .replace(" minute ago", "m ago")
+      .replace(" hours ago", "h ago")
+      .replace(" hour ago", "h ago");
+  }, [isRefreshing, relativeSyncTime, lastSyncedAt, lastClientRefresh]);
 
   const summary = useMemo(
     () =>
@@ -112,34 +172,12 @@ export function LiveWorkflowEventsTracker({ snapshot: initialSnapshot = liveWork
 
   function changeMetric(nextMetric: TrackerMetric) {
     setMetric(nextMetric);
-    setSelectedIndex(Math.max(snapshot.history.length - 1, 0));
+    setSelectedIndex(Math.max(filteredHistory.length - 1, 0));
   }
 
-  async function refreshSnapshot() {
-    setRefreshing(true);
-    setRefreshError("");
-
-    try {
-      const response = await fetch("/api/workflow-tracker", { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error("Tracker endpoint unavailable.");
-      }
-
-      const payload = (await response.json()) as WorkflowTrackerApiResponse;
-      if (!payload.ok || !payload.data) {
-        throw new Error("Tracker endpoint returned an invalid public snapshot.");
-      }
-
-      setSnapshot(payload.data);
-      setSelectedIndex(Math.max(payload.data.history.length - 1, 0));
-      setLastClientRefresh(payload.generatedAt ?? new Date().toISOString());
-    } catch {
-      setSnapshot(initialSnapshot);
-      setSelectedIndex(Math.max(initialSnapshot.history.length - 1, 0));
-      setRefreshError("Refresh unavailable. Showing bundled public-safe snapshot.");
-    } finally {
-      setRefreshing(false);
-    }
+  function changeTimeframe(nextTimeframe: TrackerTimeframe) {
+    setTimeframe(nextTimeframe);
+    setSelectedIndex(Number.MAX_SAFE_INTEGER);
   }
 
   async function copySummary() {
@@ -156,7 +194,9 @@ export function LiveWorkflowEventsTracker({ snapshot: initialSnapshot = liveWork
     return (
       <section id="workflow-tracker" className={sectionShellClass}>
         <h2 className="text-2xl font-semibold text-white">Live Workflow Events Tracker</h2>
-        <p className="mt-3 text-sm leading-6 text-slate-300">Tracker data unavailable. Run the evidence refresh pipeline or verify live-workflow-events-tracker.md.</p>
+        <p className="mt-3 text-sm leading-6 text-slate-300">
+          Tracker data unavailable. Run the evidence refresh pipeline or verify live-workflow-events-tracker.md.
+        </p>
       </section>
     );
   }
@@ -177,24 +217,37 @@ export function LiveWorkflowEventsTracker({ snapshot: initialSnapshot = liveWork
             This tracker summarizes the engineering activity behind the portfolio. Local Codex session logs are indexed, workflow events are counted, source-code volume is scanned, and the resulting metrics are synchronized into the public portfolio stats layer.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <TrackerHeartbeat label="Static evidence snapshot" />
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Heartbeat Indicator: green pulsing dot + '● LIVE SYNC' badge */}
+          <TrackerHeartbeat label="● LIVE SYNC" isLive={!isFallback} isSyncing={isRefreshing} />
+
+          {/* Relative Timestamp Display ('Synced 12s ago' / 'Syncing now...') */}
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border border-cyan/30 bg-black/40 px-3 py-1 font-mono text-xs text-slate-300 shadow-inner"
+            aria-label="Tracker sync status"
+          >
+            <Clock className="h-3 w-3 text-cyan" aria-hidden="true" />
+            <span>{syncDisplayText}</span>
+          </span>
+
           <TrackerDeltaBadge value={snapshot.currentDelta} />
+
           <button
             type="button"
-            onClick={refreshSnapshot}
-            disabled={refreshing}
+            onClick={() => syncNow()}
+            disabled={isRefreshing}
             className="inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:border-cyan hover:bg-cyan/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan disabled:cursor-wait disabled:opacity-70"
             aria-label="Refresh public-safe workflow tracker snapshot"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} aria-hidden="true" />
-            {refreshing ? "Refreshing" : "Refresh snapshot"}
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+            {isRefreshing ? "Refreshing" : "Refresh snapshot"}
           </button>
         </div>
       </div>
+
       <div className="mt-4 rounded-md border border-line bg-black/25 px-3 py-2 text-sm text-slate-300" aria-live="polite">
-        {refreshError ? (
-          <span className="font-semibold text-white">{refreshError}</span>
+        {errorMessage ? (
+          <span className="font-semibold text-white">{errorMessage}</span>
         ) : lastClientRefresh ? (
           <span>Snapshot refreshed from public API at {new Date(lastClientRefresh).toLocaleString()}.</span>
         ) : (
@@ -223,28 +276,93 @@ export function LiveWorkflowEventsTracker({ snapshot: initialSnapshot = liveWork
         </div>
 
         <div>
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2" aria-label="Tracker metric mode">
-              {metricOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => changeMetric(option.id)}
-                  aria-pressed={metric === option.id}
-                  className={`min-h-10 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
-                    metric === option.id ? "border-cyan/80 bg-cyan/20 text-white shadow-[0_0_0_1px_rgba(109,216,255,0.2)]" : "border-line bg-black/25 text-slate-300 hover:border-cyan/50 hover:bg-cyan/10 hover:text-white"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
+          {/* Metric Selector & Timeframe Presets */}
+          <div className="mb-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2" aria-label="Tracker metric mode">
+                {metricOptions.map((option) => {
+                  const isActive = metric === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => changeMetric(option.id)}
+                      aria-pressed={isActive}
+                      className={`relative min-h-10 rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
+                        isActive
+                          ? "border-cyan/80 text-white shadow-[0_0_12px_rgba(109,216,255,0.25)]"
+                          : "border-line bg-black/25 text-slate-300 hover:border-cyan/50 hover:bg-cyan/10 hover:text-white"
+                      }`}
+                    >
+                      {isActive && !isReduced && (
+                        <motion.span
+                          layoutId="activeTrackerMetricPill"
+                          className="absolute inset-0 rounded-full bg-cyan/20"
+                          transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">{option.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <motion.button
+                type="button"
+                onClick={copySummary}
+                whileHover={isReduced ? undefined : { scale: 1.04 }}
+                whileTap={isReduced ? undefined : { scale: 0.96 }}
+                className={compactLinkClass}
+                aria-label="Copy Live Workflow Events Tracker metric summary"
+              >
+                <Copy className="h-4 w-4" aria-hidden="true" />
+                {copied ? "Copied" : "Copy metric summary"}
+              </motion.button>
             </div>
-            <button type="button" onClick={copySummary} className={compactLinkClass} aria-label="Copy Live Workflow Events Tracker metric summary">
-              <Copy className="h-4 w-4" aria-hidden="true" />
-              {copied ? "Copied" : "Copy metric summary"}
-            </button>
+
+            {/* Interactive Timeframe Filter Buttons */}
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan/15 bg-black/20 px-3 py-2">
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-cyan">
+                <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Timeframe</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5" aria-label="Chart timeframe presets">
+                {timeframeOptions.map((preset) => {
+                  const isActive = timeframe === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => changeTimeframe(preset.id)}
+                      aria-pressed={isActive}
+                      className={`relative min-h-8 rounded-full border px-3 py-1 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan ${
+                        isActive
+                          ? "border-cyan bg-cyan/25 text-white shadow-[0_0_10px_rgba(56,189,248,0.25)] font-semibold"
+                          : "border-line/70 bg-black/30 text-slate-400 hover:border-cyan/40 hover:text-slate-200"
+                      }`}
+                    >
+                      {isActive && !isReduced && (
+                        <motion.span
+                          layoutId="activeTrackerTimeframePill"
+                          className="absolute inset-0 rounded-full bg-cyan/20"
+                          transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">{preset.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-          <LiveWorkflowEventsChart history={snapshot.history} metric={metric} selectedIndex={selectedIndex} onSelectPoint={setSelectedIndex} />
+
+          <LiveWorkflowEventsChart
+            history={filteredHistory}
+            metric={metric}
+            selectedIndex={safeSelectedIndex}
+            onSelectPoint={setSelectedIndex}
+            timeframe={timeframe}
+            onSelectTimeframe={changeTimeframe}
+          />
         </div>
       </div>
 

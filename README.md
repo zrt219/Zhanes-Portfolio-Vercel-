@@ -41,28 +41,28 @@ The site is intentionally evidence-bound. Public copy and metrics are sourced fr
 
 ## Evidence Snapshot
 
-Latest public-safe metric snapshot: `2026-08-23`
+Latest public-safe metric snapshot: `2026-09-21`
 
 | Metric | Value | Source Label |
 |---|---:|---|
-| Workflow events | 1,335,420 | Workflow Events Tracker |
-| Daily delta | +3,600 | Workflow Events Tracker |
-| Codex sessions | 1,018 | Workflow Events Tracker |
-| Unique thread ids | 1,018 | Workflow Events Tracker |
-| JSONL files | 1,018 | Workflow Events Tracker |
-| Corpus size | 14.8 GB | Workflow Events Tracker |
-| Source-code lines | 681,420 | Workflow Events Tracker |
+| Workflow events | 1,542,858 | Workflow Events Tracker |
+| Daily delta | +1,264 | Workflow Events Tracker |
+| Codex sessions | 1,283 | Workflow Events Tracker |
+| Unique thread ids | 1,283 | Workflow Events Tracker |
+| JSONL files | 1,283 | Workflow Events Tracker |
+| Corpus size | 19.1 GB | Workflow Events Tracker |
+| Source-code lines | 927,915 | Workflow Events Tracker |
 | Sessions updated today | 8 | Workflow Events Tracker |
-| Public GitHub repos scanned | 34 | GitHub Source Memory |
-| Foundry projects | 18 | Daily Evidence Report |
-| Solidity files | 326 | Daily Evidence Report |
-| AI/RAG/agent files | 13,550 | Daily Evidence Report |
+| Public GitHub repos scanned | 41 | GitHub Source Memory |
+| Foundry projects | 26 | Daily Evidence Report |
+| Solidity files | 548 | Daily Evidence Report |
+| AI/RAG/agent files | 15,126 | Daily Evidence Report |
 | Generated exports | 8 | Daily Evidence Report |
 
 Public-safe evidence files:
 
 - `evidence/public/live-workflow-events-tracker.md`
-- `evidence/public/daily-evidence-report-2026-07-05.md`
+- `evidence/public/daily-evidence-report-2026-09-21.md`
 - `evidence/public/session-index-summary.md`
 - `evidence/public/github-profile-source-memory.md`
 

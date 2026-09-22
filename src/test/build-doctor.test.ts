@@ -550,7 +550,8 @@ describe("Vercel Build Doctor deterministic engine", () => {
     const workflowTracker = await workflowTrackerGet();
     const workflowTrackerPayload = await workflowTracker.json();
     const serializedWorkflowTracker = JSON.stringify(workflowTrackerPayload);
-    expect(workflowTracker.headers.get("cache-control")).toBe("no-store");
+    expect(workflowTracker.headers.get("cache-control")).toContain("no-cache");
+    expect(workflowTracker.headers.get("etag")).toBeTruthy();
     expect(workflowTrackerPayload).toMatchObject({
       ok: true,
       data: {
@@ -559,6 +560,7 @@ describe("Vercel Build Doctor deterministic engine", () => {
       },
     });
     expect(workflowTrackerPayload.generatedAt).toEqual(expect.any(String));
+    expect(workflowTrackerPayload.etag).toBeTruthy();
     expect(serializedWorkflowTracker).not.toMatch(/C:\\Users\\|AFTER DIARY QUEEN|Documents\\/i);
     expect(serializedWorkflowTracker).not.toContain("rawLog");
     expect(serializedWorkflowTracker).not.toContain("session_index.jsonl");

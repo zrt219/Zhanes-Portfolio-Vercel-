@@ -11,23 +11,24 @@ import { RalphplanWorkflowMap } from "@/components/portfolio/RalphplanWorkflowMa
 import { RecruiterPath } from "@/components/portfolio/RecruiterPath";
 import { StatsRibbon } from "@/components/portfolio/StatsRibbon";
 import { TopCommandNav } from "@/components/portfolio/TopCommandNav";
+import { MotionConfigWrapper } from "@/components/motion/MotionConfigWrapper";
 
 export function SuiteHub() {
   return (
-    <>
+    <MotionConfigWrapper>
       <TopCommandNav />
       <main className="relative mx-auto min-h-screen max-w-7xl px-4 pb-8 text-[16px] sm:px-5 lg:px-8">
         <HeroMainframe />
-        <MotionSection className="mb-8">
+        <MotionSection className="mb-8" stagger>
           <StatsRibbon />
         </MotionSection>
         <MotionSection className="mb-8">
           <LiveWorkflowEventsTracker />
         </MotionSection>
-        <MotionSection className="mb-8">
+        <MotionSection className="mb-8" stagger>
           <FeaturedProofGrid />
         </MotionSection>
-        <MotionSection className="mb-8">
+        <MotionSection className="mb-8" stagger>
           <RecruiterPath />
         </MotionSection>
         <MotionSection className="mb-8">
@@ -36,10 +37,10 @@ export function SuiteHub() {
         <MotionSection className="mb-8">
           <ProjectDirectory />
         </MotionSection>
-        <MotionSection className="mb-8">
+        <MotionSection className="mb-8" stagger>
           <EmployerSignalPanel />
         </MotionSection>
-        <MotionSection className="mb-8">
+        <MotionSection className="mb-8" stagger>
           <EvidenceLedger />
         </MotionSection>
         <MotionSection>
@@ -47,6 +48,6 @@ export function SuiteHub() {
         </MotionSection>
       </main>
       <Footer />
-    </>
+    </MotionConfigWrapper>
   );
 }

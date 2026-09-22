@@ -1,6 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import type { CachedProviderReview, Diagnosis } from "@/lib/schemas";
 import { InfoTip } from "./InfoTip";
+import { SPRING_PRESETS, useSafeReducedMotion } from "@/lib/motion";
 
 const providerStatusLabels: Record<string, string> = {
   openrouter_success: "DeepSeek review added.",
@@ -28,11 +33,30 @@ export function AiPatchReviewPanel({
   cachedProviderReview?: CachedProviderReview | null;
   onReview: () => void;
 }) {
+  const isReduced = useSafeReducedMotion();
+  const [activeTab, setActiveTab] = useState("all");
   const review = diagnosis.aiPatchReview;
   const visibleStatus = review ? "openrouter_success" : providerStatus;
   const isRateLimited = visibleStatus === "free_model_rate_limited";
   const reviewStatusLabel = review ? "Complete" : isRateLimited ? "Rate-limited" : visibleStatus ? "Did not run" : "Not run";
   const reviewStatusTone = review ? "border-cyan/45 bg-cyan/10 text-cyan" : isRateLimited ? "border-dashed border-gold/70 bg-gold/10 text-gold" : "border-dashed border-white/20 bg-white/[0.035] text-slate-300";
+
+  const tabs = review
+    ? [
+        { id: "all", label: "All Views" },
+        { id: "review", label: "DeepSeek review" },
+        { id: "cautions", label: "Patch review & cautions" },
+      ]
+    : isRateLimited && cachedProviderReview
+      ? [
+          { id: "all", label: "All Views" },
+          { id: "review", label: "DeepSeek review" },
+          { id: "fallback", label: "Fallback view" },
+        ]
+      : [
+          { id: "all", label: "All Views" },
+          { id: "fallback", label: "Fallback view" },
+        ];
 
   return (
     <section className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
@@ -46,122 +70,179 @@ export function AiPatchReviewPanel({
             Build Doctor can optionally send the sanitized diagnosis to DeepSeek through OpenRouter for a second-pass explanation review. The local diagnosis remains the source of truth.
           </p>
         </div>
-        <button
+        <motion.button
           type="button"
           onClick={onReview}
           disabled={loading}
+          whileHover={isReduced || loading ? undefined : { scale: 1.03 }}
+          whileTap={isReduced || loading ? undefined : { scale: 0.96 }}
+          transition={SPRING_PRESETS.snappy}
           className="inline-flex items-center gap-2 rounded-xl border border-cyan/60 bg-cyan/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-cyan/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan disabled:opacity-50"
         >
           <Sparkles className="h-4 w-4" aria-hidden="true" />
           {loading ? "Reviewing" : "Run DeepSeek Review"}
-        </button>
+        </motion.button>
       </div>
 
-      {review ? (
-        <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-2xl border border-cyan/35 bg-cyan/10 p-4">
-            <div className="flex items-center gap-2 text-cyan">
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-              <p className="text-xs font-semibold uppercase tracking-[0.16em]">DeepSeek review added</p>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-slate-100">{review.summary}</p>
-            <p className="mt-3 text-xs uppercase tracking-[0.14em] text-slate-300">
-              {review.provider} / {review.model} / sanitized input only
-            </p>
-            <p className="mt-2 inline-flex rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
-              Provider status: {visibleStatus}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2" aria-label="Provider review status">
-              <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                Core diagnosis: Complete
-              </span>
-              <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${reviewStatusTone}`}>
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                DeepSeek review: {reviewStatusLabel}
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                Report export: Available
-              </span>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">Patch review</p>
-            <p className="mt-3 text-sm leading-6 text-slate-200">{review.patchReview}</p>
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-gold">Cautions</p>
-            <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-300">
-              {review.cautions.map((caution) => (
-                <li key={caution}>- {caution}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-4 rounded-2xl border border-dashed border-gold/50 bg-gold/5 p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-4 w-4 text-gold" aria-hidden="true" />
-            <div>
-              <h4 className="text-base font-semibold text-white">
-                {isRateLimited ? "DeepSeek free review is rate-limited" : "Optional review did not run"}
-              </h4>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                {isRateLimited
-                  ? providerStatusLabels.free_model_rate_limited
-                  : message || (visibleStatus ? providerStatusLabels[visibleStatus] : "Live LLM review has not run. The deterministic diagnosis, trace, patch draft, and export still work without it.")}
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2" aria-label="Provider fallback status">
-            <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              Core diagnosis: Complete
-            </span>
-            <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${reviewStatusTone}`}>
-              <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-              DeepSeek review: {reviewStatusLabel}
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-              Report export: Available
-            </span>
-            {visibleStatus ? (
-              <span className="inline-flex rounded-full border border-dashed border-gold/60 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
-                Provider status: {visibleStatus}
-              </span>
-            ) : null}
-          </div>
-          {isRateLimited && cachedProviderReview ? (
-            <div className="mt-4 grid gap-4 rounded-2xl border border-cyan/25 bg-slate-950/35 p-4 lg:grid-cols-[0.9fr_1.1fr]">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-base font-semibold text-white">Cached DeepSeek demo review</p>
-                  <span className="inline-flex rounded-full border border-dashed border-gold/70 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
-                    Cached provider review example, not live output
+      <div className="mt-4 flex flex-wrap gap-2 border-b border-white/10 pb-3" role="tablist" aria-label="Patch review tabs">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTab(tab.id)}
+              className="relative rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300 transition-colors hover:text-white"
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activePatchTab"
+                  className="absolute inset-0 rounded-full border border-cyan/50 bg-cyan/15 shadow-[0_0_12px_rgba(109,216,255,0.25)]"
+                  transition={isReduced ? { duration: 0 } : SPRING_PRESETS.snappy}
+                />
+              )}
+              <span className="relative z-10">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {review ? (
+          <motion.div
+            key={`review-${activeTab}`}
+            initial={isReduced ? undefined : { opacity: 0, y: 8 }}
+            animate={isReduced ? undefined : { opacity: 1, y: 0 }}
+            exit={isReduced ? undefined : { opacity: 0, y: -8 }}
+            transition={SPRING_PRESETS.cinematic}
+            className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]"
+          >
+            {(activeTab === "all" || activeTab === "review") && (
+              <div className="rounded-2xl border border-cyan/35 bg-cyan/10 p-4">
+                <div className="flex items-center gap-2 text-cyan">
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em]">DeepSeek review added</p>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-slate-100">{review.summary}</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.14em] text-slate-300">
+                  {review.provider} / {review.model} / sanitized input only
+                </p>
+                <p className="mt-2 inline-flex rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
+                  Provider status: {visibleStatus}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2" aria-label="Provider review status">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Core diagnosis: Complete
+                  </span>
+                  <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${reviewStatusTone}`}>
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    DeepSeek review: {reviewStatusLabel}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Report export: Available
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
-                  Live DeepSeek review is currently rate-limited. This cached example shows the expected review format.
-                </p>
-                <p className="mt-3 text-sm leading-6 text-slate-100">{cachedProviderReview.summary}</p>
-                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
-                  Demo fixture / {diagnosis.failureType} / not live output
-                </p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">Example patch review</p>
-                <p className="mt-3 text-sm leading-6 text-slate-200">{cachedProviderReview.patchReview}</p>
+            )}
+            {(activeTab === "all" || activeTab === "cautions") && (
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">Patch review</p>
+                <p className="mt-3 text-sm leading-6 text-slate-200">{review.patchReview}</p>
                 <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-gold">Cautions</p>
                 <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-300">
-                  {cachedProviderReview.cautions.map((caution) => (
+                  {review.cautions.map((caution) => (
                     <li key={caution}>- {caution}</li>
                   ))}
                 </ul>
               </div>
-            </div>
-          ) : null}
-        </div>
-      )}
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key={`fallback-${activeTab}`}
+            initial={isReduced ? undefined : { opacity: 0, y: 8 }}
+            animate={isReduced ? undefined : { opacity: 1, y: 0 }}
+            exit={isReduced ? undefined : { opacity: 0, y: -8 }}
+            transition={SPRING_PRESETS.cinematic}
+            className="mt-4 space-y-4"
+          >
+            {(activeTab === "all" || activeTab === "fallback") && (
+              <div className="rounded-2xl border border-dashed border-gold/50 bg-gold/5 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 text-gold" aria-hidden="true" />
+                  <div>
+                    <h4 className="text-base font-semibold text-white">
+                      {isRateLimited ? "DeepSeek free review is rate-limited" : "Optional review did not run"}
+                    </h4>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {isRateLimited
+                        ? providerStatusLabels.free_model_rate_limited
+                        : message || (visibleStatus ? providerStatusLabels[visibleStatus] : "Live LLM review has not run. The deterministic diagnosis, trace, patch draft, and export still work without it.")}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2" aria-label="Provider fallback status">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Core diagnosis: Complete
+                  </span>
+                  <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${reviewStatusTone}`}>
+                    <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+                    DeepSeek review: {reviewStatusLabel}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan">
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Report export: Available
+                  </span>
+                  {visibleStatus ? (
+                    <span className="inline-flex rounded-full border border-dashed border-gold/60 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
+                      Provider status: {visibleStatus}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            )}
+            {isRateLimited && cachedProviderReview && (activeTab === "all" || activeTab === "review") && (
+              <motion.div
+                initial={isReduced ? undefined : { opacity: 0, y: 10 }}
+                animate={isReduced ? undefined : { opacity: 1, y: 0 }}
+                transition={SPRING_PRESETS.cinematic}
+                className="grid gap-4 rounded-2xl border border-cyan/25 bg-slate-950/35 p-4 lg:grid-cols-[0.9fr_1.1fr]"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-base font-semibold text-white">Cached DeepSeek demo review</p>
+                    <span className="inline-flex rounded-full border border-dashed border-gold/70 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
+                      Cached provider review example, not live output
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-slate-300">
+                    Live DeepSeek review is currently rate-limited. This cached example shows the expected review format.
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-slate-100">{cachedProviderReview.summary}</p>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
+                    Demo fixture / {diagnosis.failureType} / not live output
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">Example patch review</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-200">{cachedProviderReview.patchReview}</p>
+                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-gold">Cautions</p>
+                  <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-300">
+                    {cachedProviderReview.cautions.map((caution) => (
+                      <li key={caution}>- {caution}</li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

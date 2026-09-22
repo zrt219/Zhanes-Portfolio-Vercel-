@@ -1,6 +1,10 @@
+"use client";
+
 import { Github, Mail, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { CommandPalette } from "./CommandPalette";
+import { SPRING_PRESETS, useSafeReducedMotion } from "@/lib/motion";
 
 const navItems = [
   { label: "Proof", href: "#metrics" },
@@ -12,13 +16,24 @@ const navItems = [
 ];
 
 export function TopCommandNav() {
+  const isReduced = useSafeReducedMotion();
+
   return (
     <header className="sticky top-0 z-50 overflow-x-hidden border-b border-line/70 bg-[#06101b]/85 backdrop-blur-xl shadow-lg">
       <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-5 lg:px-8">
-        <Link href="/" className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan" aria-label="Zhane Grey portfolio home">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan/60 bg-cyan/15 font-mono text-sm font-bold text-cyan shadow-[0_0_12px_rgba(109,216,255,0.25)]">
+        <Link
+          href="/"
+          className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+          aria-label="Zhane Grey portfolio home"
+        >
+          <motion.span
+            whileHover={isReduced ? undefined : { scale: 1.08, rotate: 2 }}
+            whileTap={isReduced ? undefined : { scale: 0.94 }}
+            transition={SPRING_PRESETS.snappy}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan/60 bg-cyan/15 font-mono text-sm font-bold text-cyan shadow-[0_0_12px_rgba(109,216,255,0.25)]"
+          >
             ZG
-          </span>
+          </motion.span>
           <span className="min-w-0">
             <span className="flex items-center gap-2">
               <span className="block text-sm font-bold uppercase tracking-[0.12em] text-white">Zhane Grey</span>
@@ -36,45 +51,56 @@ export function TopCommandNav() {
 
         <nav className="ml-auto hidden items-center gap-1 lg:flex" aria-label="Portfolio sections">
           {navItems.map((item) => (
-            <a
+            <motion.a
               key={item.href}
               href={item.href}
-              className="rounded-lg border border-transparent px-3 py-2 text-sm font-semibold text-slate-300 transition-all duration-200 hover:border-cyan/40 hover:bg-cyan/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
+              whileHover={isReduced ? undefined : { scale: 1.04, y: -1 }}
+              whileTap={isReduced ? undefined : { scale: 0.96 }}
+              transition={SPRING_PRESETS.snappy}
+              className="rounded-lg border border-transparent px-3 py-2 text-sm font-semibold text-slate-300 transition-all hover:border-cyan/50 hover:bg-cyan/10 hover:text-white hover:shadow-[0_0_12px_rgba(109,216,255,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan"
             >
               {item.label}
-            </a>
+            </motion.a>
           ))}
         </nav>
 
         <div className="ml-auto flex min-w-0 items-center gap-2 lg:ml-3">
           <CommandPalette />
-          <a
+          <motion.a
             href="https://github.com/zrt219"
             target="_blank"
             rel="noreferrer"
-            className="hidden min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-black/40 px-3.5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan/70 hover:bg-cyan/10 sm:inline-flex"
+            whileHover={isReduced ? undefined : { scale: 1.03 }}
+            whileTap={isReduced ? undefined : { scale: 0.96 }}
+            transition={SPRING_PRESETS.snappy}
+            className="hidden min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-black/40 px-3.5 py-2 text-sm font-semibold text-white transition-all hover:border-cyan/70 hover:bg-cyan/10 hover:shadow-[0_0_15px_rgba(109,216,255,0.25)] sm:inline-flex"
           >
             <Github className="h-4 w-4" aria-hidden="true" />
             GitHub
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href="mailto:zpeace11@gmail.com"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-cyan/60 bg-cyan/15 px-3.5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan hover:bg-cyan/25 hover:shadow-[0_0_15px_rgba(109,216,255,0.25)]"
+            whileHover={isReduced ? undefined : { scale: 1.03 }}
+            whileTap={isReduced ? undefined : { scale: 0.96 }}
+            transition={SPRING_PRESETS.snappy}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-cyan/60 bg-cyan/15 px-3.5 py-2 text-sm font-semibold text-white transition-all hover:border-cyan hover:bg-cyan/25 hover:shadow-[0_0_20px_rgba(109,216,255,0.35)]"
           >
             <Mail className="h-4 w-4" aria-hidden="true" />
             Email
-          </a>
+          </motion.a>
         </div>
       </div>
+
       <div className="mx-auto flex w-full max-w-7xl gap-2 overflow-x-auto px-4 pb-3 sm:px-5 lg:hidden" aria-label="Mobile portfolio sections">
         {navItems.map((item) => (
-          <a
+          <motion.a
             key={item.href}
             href={item.href}
-            className="shrink-0 rounded-full border border-line bg-black/30 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-slate-300 transition hover:border-cyan/50 hover:bg-cyan/10 hover:text-white"
+            whileTap={isReduced ? undefined : { scale: 0.95 }}
+            className="shrink-0 rounded-full border border-line bg-black/30 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-slate-300 transition-colors hover:border-cyan/50 hover:bg-cyan/10 hover:text-white"
           >
             {item.label}
-          </a>
+          </motion.a>
         ))}
         <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-cyan/40 bg-cyan/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-cyan">
           <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />

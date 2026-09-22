@@ -4,10 +4,14 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "..");
-const aiEngineerRoot = path.resolve(repoRoot, "..", "..");
-const defaultSource = fs.existsSync(path.resolve(aiEngineerRoot, "live-workflow-events-tracker.md"))
-  ? path.resolve(aiEngineerRoot, "live-workflow-events-tracker.md")
-  : path.resolve(repoRoot, "evidence", "public", "live-workflow-events-tracker.md");
+const candidateRoots = [
+  path.resolve(repoRoot, "..", "..", "2018 resume", "2025+ AFTER DIARY QUEEN", "AI Engineer"),
+  path.resolve(repoRoot, "..", ".."),
+];
+const aiEngineerRoot = candidateRoots.find((dir) => fs.existsSync(dir)) ?? path.resolve(repoRoot, "..", "..");
+const defaultSource = fs.existsSync(path.resolve(repoRoot, "evidence", "public", "live-workflow-events-tracker.md"))
+  ? path.resolve(repoRoot, "evidence", "public", "live-workflow-events-tracker.md")
+  : path.resolve(aiEngineerRoot, "live-workflow-events-tracker.md");
 const sourcePath = path.resolve(process.env.WORKFLOW_TRACKER_SOURCE ?? defaultSource);
 const rootEvidenceSourceMemory = path.resolve(aiEngineerRoot, "evidence", "source-memory", "github-profile-source-memory.md");
 

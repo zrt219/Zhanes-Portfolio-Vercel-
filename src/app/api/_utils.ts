@@ -4,7 +4,9 @@ const defaultMaxJsonBytes = 140_000;
 
 export function jsonResponse(body: unknown, init: ResponseInit = {}) {
   const headers = new Headers(init.headers);
-  headers.set("Cache-Control", "no-store");
+  if (!headers.has("Cache-Control")) {
+    headers.set("Cache-Control", "no-store");
+  }
   return NextResponse.json(body, { ...init, headers });
 }
 

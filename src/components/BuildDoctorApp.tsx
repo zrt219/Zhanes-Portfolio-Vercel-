@@ -8,6 +8,7 @@ import { taxonomyById } from "@/lib/failure-taxonomy";
 import { sampleLogs } from "@/lib/sample-logs";
 import { socialLinks } from "@/lib/social-links";
 import type { AiPatchReview, AutofillFixPlan, CachedProviderReview, Diagnosis } from "@/lib/schemas";
+import { AnimatePresence, motion } from "framer-motion";
 import { AiPatchReviewPanel } from "./AiPatchReviewPanel";
 import { DiagnosisPanel } from "./DiagnosisPanel";
 import { EvidenceTable } from "./EvidenceTable";
@@ -19,6 +20,7 @@ import { SampleLogPicker } from "./SampleLogPicker";
 import { StatusChip } from "./StatusChip";
 import { SuggestedSolutionsPanel } from "./SuggestedSolutionsPanel";
 import { TraceTimeline } from "./TraceTimeline";
+import { SPRING_PRESETS, useSafeReducedMotion } from "@/lib/motion";
 
 const proofCards = [
   { icon: ClipboardCheck, title: "Deterministic engine" },
@@ -68,6 +70,7 @@ const employerProofCards = [
 ];
 
 export function BuildDoctorApp() {
+  const isReduced = useSafeReducedMotion();
   const [sampleId, setSampleId] = useState(sampleLogs[0].id);
   const activeSample = useMemo(() => sampleLogs.find((sample) => sample.id === sampleId) ?? sampleLogs[0], [sampleId]);
   const activeRecipe = taxonomyById[activeSample.expected];
@@ -184,6 +187,11 @@ export function BuildDoctorApp() {
       setDiagnosis(payload.diagnosis);
       setAiReviewMessage("");
       setAiProviderStatus("");
+      if (typeof window !== "undefined" && !isReduced) {
+        setTimeout(() => {
+          document.getElementById("step-2-diagnosis")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 120);
+      }
     } catch {
       setInputError("Diagnosis request failed safely. The local workflow did not store raw logs.");
     } finally {
@@ -443,6 +451,28 @@ src/components/DeploymentCard.tsx:42:19</pre>
           </p>
         </div>
         <div className="space-y-5 p-4 sm:p-5">
+          <AnimatePresence>
+            {(loading || aiReviewLoading || reportLoading) && (
+              <motion.div
+                key="global-pipeline-scanline"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: isReduced ? 0 : 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-cyan/15 mb-2">
+                  <motion.div
+                    className="absolute inset-y-0 h-full w-1/3 bg-gradient-to-r from-transparent via-cyan to-transparent shadow-[0_0_14px_rgba(109,216,255,0.95)]"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "400%" }}
+                    transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <span className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan">Step 1</span>
@@ -454,79 +484,148 @@ src/components/DeploymentCard.tsx:42:19</pre>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+          <section id="step-2-diagnosis" className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <span className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan">Step 2</span>
               <h3 className="text-lg font-semibold text-white">Diagnose root cause</h3>
             </div>
-            {diagnosis ? (
-              <DiagnosisPanel diagnosis={diagnosis} compact />
-            ) : (
-              <div className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300">
-                Run the local diagnosis engine to classify the failure, calculate confidence, and capture the probable root cause for review.
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div
+                  key="diag-loading"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={isReduced ? { duration: 0 } : SPRING_PRESETS.cinematic}
+                  className="rounded-2xl border border-cyan/35 bg-cyan/5 p-6 text-sm text-cyan"
+                >
+                  <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.16em] text-cyan">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan"></span>
+                    </span>
+                    Running deterministic pattern engine & secret scan...
+                  </div>
+                  <div className="mt-4 relative h-1.5 w-full overflow-hidden rounded-full bg-black/40">
+                    <motion.div
+                      className="absolute inset-y-0 h-full w-1/3 bg-gradient-to-r from-transparent via-cyan to-transparent shadow-[0_0_12px_rgba(109,216,255,0.8)]"
+                      initial={{ x: "-100%" }}
+                      animate={{ x: "400%" }}
+                      transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                    />
+                  </div>
+                </motion.div>
+              ) : diagnosis ? (
+                <motion.div
+                  key={`diag-${diagnosis.failureType}`}
+                  initial={isReduced ? undefined : { opacity: 0, y: 12 }}
+                  animate={isReduced ? undefined : { opacity: 1, y: 0 }}
+                  exit={isReduced ? undefined : { opacity: 0 }}
+                  transition={SPRING_PRESETS.cinematic}
+                >
+                  <DiagnosisPanel diagnosis={diagnosis} compact />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="diag-empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300"
+                >
+                  Run the local diagnosis engine to classify the failure, calculate confidence, and capture the probable root cause for review.
+                </motion.div>
+              )}
+            </AnimatePresence>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+          <section id="step-3-trace" className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <span className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan">Step 3</span>
               <h3 className="text-lg font-semibold text-white">Show diagnostic trace</h3>
             </div>
-            {diagnosis ? (
-              <div className="space-y-4">
-                <TraceTimeline diagnosis={diagnosis} />
-                <EvidenceTable diagnosis={diagnosis} compact />
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300">
-                The diagnostic trace appears after analysis and shows the deterministic engine steps plus the exact evidence lines it used.
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {diagnosis ? (
+                <motion.div
+                  key={`trace-${diagnosis.failureType}`}
+                  initial={isReduced ? undefined : { opacity: 0, y: 16 }}
+                  animate={isReduced ? undefined : { opacity: 1, y: 0 }}
+                  exit={isReduced ? undefined : { opacity: 0 }}
+                  transition={{ ...SPRING_PRESETS.cinematic, delay: isReduced ? 0 : 0.08 }}
+                  className="space-y-4"
+                >
+                  <TraceTimeline diagnosis={diagnosis} />
+                  <EvidenceTable diagnosis={diagnosis} compact />
+                </motion.div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300">
+                  The diagnostic trace appears after analysis and shows the deterministic engine steps plus the exact evidence lines it used.
+                </div>
+              )}
+            </AnimatePresence>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+          <section id="step-4-patch" className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <span className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan">Step 4</span>
               <h3 className="text-lg font-semibold text-white">Suggest patch draft</h3>
             </div>
-            {diagnosis ? (
-              <div className="space-y-4">
-                <PatchDraftPanel diagnosis={diagnosis} />
-                {autofillFixPlan ? (
-                  <SuggestedSolutionsPanel
-                    diagnosis={diagnosis}
-                    selectedSuggestionIds={selectedSolutionIds}
-                    autofillFixPlan={autofillFixPlan}
-                    onSelectedSuggestionIdsChange={setSelectedSolutionIds}
-                    onAutofillFixPlanChange={(plan) => {
-                      setAutofillFixPlan(plan);
-                      setReport("");
-                    }}
-                  />
-                ) : null}
-                <AiPatchReviewPanel diagnosis={diagnosis} loading={aiReviewLoading} message={aiReviewMessage} providerStatus={aiProviderStatus} cachedProviderReview={cachedProviderReview} onReview={runAiReview} />
-                <FixPlan diagnosis={diagnosis} compact />
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300">
-                The patch draft appears after diagnosis with likely file targets, a deterministic snippet, and validation commands. It is a review aid, not an automatic code change.
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {diagnosis ? (
+                <motion.div
+                  key={`patch-${diagnosis.failureType}`}
+                  initial={isReduced ? undefined : { opacity: 0, y: 16 }}
+                  animate={isReduced ? undefined : { opacity: 1, y: 0 }}
+                  exit={isReduced ? undefined : { opacity: 0 }}
+                  transition={{ ...SPRING_PRESETS.cinematic, delay: isReduced ? 0 : 0.16 }}
+                  className="space-y-4"
+                >
+                  <PatchDraftPanel diagnosis={diagnosis} />
+                  {autofillFixPlan ? (
+                    <SuggestedSolutionsPanel
+                      diagnosis={diagnosis}
+                      selectedSuggestionIds={selectedSolutionIds}
+                      autofillFixPlan={autofillFixPlan}
+                      onSelectedSuggestionIdsChange={setSelectedSolutionIds}
+                      onAutofillFixPlanChange={(plan) => {
+                        setAutofillFixPlan(plan);
+                        setReport("");
+                      }}
+                    />
+                  ) : null}
+                  <AiPatchReviewPanel diagnosis={diagnosis} loading={aiReviewLoading} message={aiReviewMessage} providerStatus={aiProviderStatus} cachedProviderReview={cachedProviderReview} onReview={runAiReview} />
+                  <FixPlan diagnosis={diagnosis} compact />
+                </motion.div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300">
+                  The patch draft appears after diagnosis with likely file targets, a deterministic snippet, and validation commands. It is a review aid, not an automatic code change.
+                </div>
+              )}
+            </AnimatePresence>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+          <section id="step-5-report" className="rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <span className="rounded-full border border-cyan/45 bg-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-cyan">Step 5</span>
               <h3 className="text-lg font-semibold text-white">Export incident report</h3>
             </div>
-            {diagnosis ? (
-              <IncidentReport report={report} onGenerate={generateReport} loading={reportLoading} compact fileName={reportFileName} />
-            ) : (
-              <div className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300">
-                Run a diagnosis to generate an exportable incident report.
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {diagnosis ? (
+                <motion.div
+                  key={`report-${diagnosis.failureType}`}
+                  initial={isReduced ? undefined : { opacity: 0, y: 16 }}
+                  animate={isReduced ? undefined : { opacity: 1, y: 0 }}
+                  exit={isReduced ? undefined : { opacity: 0 }}
+                  transition={{ ...SPRING_PRESETS.cinematic, delay: isReduced ? 0 : 0.24 }}
+                >
+                  <IncidentReport report={report} onGenerate={generateReport} loading={reportLoading} compact fileName={reportFileName} />
+                </motion.div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/20 bg-white/[0.02] p-5 text-sm leading-6 text-slate-300">
+                  Run a diagnosis to generate an exportable incident report.
+                </div>
+              )}
+            </AnimatePresence>
           </section>
         </div>
       </section>

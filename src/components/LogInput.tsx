@@ -1,7 +1,9 @@
 "use client";
 
 import { ClipboardPaste, Loader2, Play } from "lucide-react";
+import { motion } from "framer-motion";
 import { InfoTip } from "./InfoTip";
+import { SPRING_PRESETS, useSafeReducedMotion } from "@/lib/motion";
 
 export function LogInput({
   value,
@@ -18,6 +20,8 @@ export function LogInput({
   error?: string;
   redactionStatus: string;
 }) {
+  const isReduced = useSafeReducedMotion();
+
   return (
     <section className="rounded-2xl border border-cyan/30 bg-[linear-gradient(180deg,rgba(30,41,59,0.82),rgba(15,23,42,0.76))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.2)]">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -38,7 +42,7 @@ export function LogInput({
         aria-describedby="build-log-description build-log-error"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-[260px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950/70 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan"
+        className="min-h-[260px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950/70 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan focus:shadow-[0_0_20px_rgba(109,216,255,0.15)]"
         spellCheck={false}
       />
       <p id="build-log-description" className="mt-2 text-xs leading-5 text-slate-400">
@@ -49,16 +53,19 @@ export function LogInput({
           {error}
         </p>
       ) : null}
-      <button
+      <motion.button
         type="button"
         onClick={onDiagnose}
         aria-busy={loading}
         disabled={loading || !value.trim()}
+        whileHover={isReduced || loading || !value.trim() ? undefined : { scale: 1.03 }}
+        whileTap={isReduced || loading || !value.trim() ? undefined : { scale: 0.97 }}
+        transition={SPRING_PRESETS.snappy}
         className="mt-4 inline-flex min-w-44 items-center justify-center gap-2 rounded-xl border border-cyan/80 bg-cyan/30 px-5 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_14px_34px_rgba(109,216,255,0.12)] transition hover:bg-cyan/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan disabled:cursor-not-allowed disabled:opacity-45"
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
         {loading ? "Running diagnosis..." : "Run diagnosis"}
-      </button>
+      </motion.button>
     </section>
   );
 }
