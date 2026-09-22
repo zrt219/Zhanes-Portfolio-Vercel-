@@ -81,6 +81,7 @@ export function LiveWorkflowEventsTracker({
     relativeSyncTime,
     lastSyncedAt,
     isFallback,
+    isOnline,
     syncNow,
   } = useWorkflowTracker({ initialSnapshot });
 
@@ -219,7 +220,11 @@ export function LiveWorkflowEventsTracker({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {/* Heartbeat Indicator: green pulsing dot + '● LIVE SYNC' badge */}
-          <TrackerHeartbeat label="● LIVE SYNC" isLive={!isFallback} isSyncing={isRefreshing} />
+          <TrackerHeartbeat
+            label={isOnline ? "● LIVE SYNC" : "○ OFFLINE"}
+            isLive={!isFallback && isOnline}
+            isSyncing={isRefreshing}
+          />
 
           {/* Relative Timestamp Display ('Synced 12s ago' / 'Syncing now...') */}
           <span

@@ -39,8 +39,6 @@ describe("TrackerHeartbeat Component", () => {
 describe("LiveWorkflowEventsTracker Component", () => {
   it("renders header with live sync badge, relative timestamp display, and timeframe presets", () => {
     const html = renderToString(React.createElement(LiveWorkflowEventsTracker));
-
-    // Heartbeat badge
     expect(html).toContain("● LIVE SYNC");
     expect(html).toContain("bg-emerald-400");
 

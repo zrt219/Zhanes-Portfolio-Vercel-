@@ -80,6 +80,8 @@ export interface UseWorkflowTrackerReturn {
   etag: string | null;
   /** True if currently displaying the static fallback snapshot due to fetch failure */
   isFallback: boolean;
+  /** True if browser network is currently online */
+  isOnline: boolean;
   /** Manually trigger an immediate sync */
   syncNow: () => Promise<void>;
   /** Alias for syncNow */
@@ -141,6 +143,13 @@ export function useWorkflowTracker(options: UseWorkflowTrackerOptions = {}): Use
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
   const [lastClientRefresh, setLastClientRefresh] = useState<string>("");
   const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [isOnline, setIsOnline] = useState<boolean>(() =>
+    typeof window !== "undefined" &&
+    typeof navigator !== "undefined" &&
+    typeof navigator.onLine === "boolean"
+      ? navigator.onLine
+      : true,
+  );
   const [etag, setEtag] = useState<string | null>(null);
 
   const fallbackSnapshotRef = useRef<LiveWorkflowTrackerSnapshot>(initialSnapshot);
@@ -148,8 +157,10 @@ export function useWorkflowTracker(options: UseWorkflowTrackerOptions = {}): Use
 
   const etagRef = useRef<string | null>(null);
   const isFetchingRef = useRef(false);
+  const consecutiveFailuresRef = useRef(0);
   const lastFetchTimeRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const pollingTimeoutRef = useRef<number | null>(null);
 
   const [relativeSyncTime, setRelativeSyncTime] = useState<string>(() =>
     formatRelativeSyncTime(null),
@@ -175,10 +186,19 @@ export function useWorkflowTracker(options: UseWorkflowTrackerOptions = {}): Use
         return;
       }
 
+      // Check offline status
+      if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.onLine === false) {
+        setIsOnline(false);
+        setErrorMessage("Network is offline. Displaying cached public snapshot.");
+        setIsFallback(true);
+        return;
+      }
+
       isFetchingRef.current = true;
       setIsRefreshing(true);
       if (isManualTrigger) {
         setErrorMessage(null);
+        consecutiveFailuresRef.current = 0;
       }
 
       const controller = new AbortController();
@@ -209,6 +229,7 @@ export function useWorkflowTracker(options: UseWorkflowTrackerOptions = {}): Use
           setError(null);
           setErrorMessage(null);
           setIsFallback(false);
+          consecutiveFailuresRef.current = 0;
           return;
         }
 
@@ -236,11 +257,13 @@ export function useWorkflowTracker(options: UseWorkflowTrackerOptions = {}): Use
         setError(null);
         setErrorMessage(null);
         setIsFallback(false);
+        consecutiveFailuresRef.current = 0;
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") {
           return;
         }
 
+        consecutiveFailuresRef.current += 1;
         const caughtError = err instanceof Error ? err : new Error(String(err));
         setError(caughtError);
         setErrorMessage("Refresh unavailable. Showing bundled public-safe snapshot.");
@@ -271,24 +294,74 @@ export function useWorkflowTracker(options: UseWorkflowTrackerOptions = {}): Use
     };
   }, [revalidateOnMount, executeFetch]);
 
-  // Periodic polling interval (default 30 seconds)
+  // Periodic polling interval with exponential backoff on failure
   useEffect(() => {
     if (typeof window === "undefined" || !enablePolling || pollingIntervalMs <= 0) {
       return;
     }
 
-    const intervalId = window.setInterval(() => {
-      // Pause polling if the tab is hidden to conserve background resources
-      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
-        return;
-      }
-      void executeFetch(false);
-    }, pollingIntervalMs);
+    let isSubscribed = true;
+
+    const scheduleNextPoll = () => {
+      if (!isSubscribed) return;
+
+      // Compute backoff delay if failures occurred (max 5 minutes)
+      const failures = consecutiveFailuresRef.current;
+      const delay =
+        failures === 0
+          ? pollingIntervalMs
+          : Math.min(pollingIntervalMs * Math.pow(2, failures), 300_000);
+
+      pollingTimeoutRef.current = window.setTimeout(async () => {
+        if (!isSubscribed) return;
+
+        // Pause polling if tab is hidden or offline
+        const isHidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+        const isOffline = typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.onLine === false;
+
+        if (!isHidden && !isOffline) {
+          await executeFetch(false);
+        }
+
+        scheduleNextPoll();
+      }, delay);
+    };
+
+    scheduleNextPoll();
 
     return () => {
-      window.clearInterval(intervalId);
+      isSubscribed = false;
+      if (pollingTimeoutRef.current !== null) {
+        window.clearTimeout(pollingTimeoutRef.current);
+      }
     };
   }, [enablePolling, pollingIntervalMs, executeFetch]);
+
+  // Network online/offline event listeners
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleOnline = () => {
+      setIsOnline(true);
+      setErrorMessage(null);
+      consecutiveFailuresRef.current = 0;
+      void executeFetch(false);
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      setErrorMessage("Network is offline. Displaying cached public snapshot.");
+      setIsFallback(true);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [executeFetch]);
 
   // Revalidate on window focus or visibility change
   useEffect(() => {
@@ -334,6 +407,7 @@ export function useWorkflowTracker(options: UseWorkflowTrackerOptions = {}): Use
     relativeSyncTime,
     etag,
     isFallback,
+    isOnline,
     syncNow,
     refresh: syncNow,
   };
