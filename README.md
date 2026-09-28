@@ -53,16 +53,16 @@ Latest public-safe metric snapshot: `2026-09-21`
 | Corpus size | 19.1 GB | Workflow Events Tracker |
 | Source-code lines | 927,915 | Workflow Events Tracker |
 | Sessions updated today | 8 | Workflow Events Tracker |
-| Public GitHub repos scanned | 41 | GitHub Source Memory |
+| Public GitHub repos scanned | 42 | GitHub Source Memory |
 | Foundry projects | 26 | Daily Evidence Report |
 | Solidity files | 548 | Daily Evidence Report |
-| AI/RAG/agent files | 15,126 | Daily Evidence Report |
+| AI/RAG/agent files | 15,156 | Daily Evidence Report |
 | Generated exports | 8 | Daily Evidence Report |
 
 Public-safe evidence files:
 
 - `evidence/public/live-workflow-events-tracker.md`
-- `evidence/public/daily-evidence-report-2026-09-21.md`
+- `evidence/public/daily-evidence-report-2026-09-27.md`
 - `evidence/public/session-index-summary.md`
 - `evidence/public/github-profile-source-memory.md`
 
