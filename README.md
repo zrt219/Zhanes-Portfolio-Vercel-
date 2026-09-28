@@ -10,9 +10,9 @@ The site is intentionally evidence-bound. Public copy and metrics are sourced fr
 
 | Surface | URL |
 |---|---|
-| Portfolio Mainframe | <https://vercel-build-doctor-agent.vercel.app> |
-| Build Doctor App | <https://vercel-build-doctor-agent.vercel.app/build-doctor> |
-| Case Study | <https://vercel-build-doctor-agent.vercel.app/case-study> |
+| Portfolio Mainframe | <https://zhane-public-engineering-ai-portfolio-zrt219s-projects.vercel.app> |
+| Build Doctor App | <https://zhane-public-engineering-ai-portfolio-zrt219s-projects.vercel.app/build-doctor> |
+| Case Study | <https://zhane-public-engineering-ai-portfolio-zrt219s-projects.vercel.app/case-study> |
 | GitHub Profile | <https://github.com/zrt219> |
 | Evidence Dashboard | <https://zhane-grey-evidence-dashboard.vercel.app> |
 
@@ -71,7 +71,7 @@ Public-safe evidence files:
 | Project | Focus | Links |
 |---|---|---|
 | Zhane Grey Evidence Dashboard | Evidence organization, claim grounding, public proof surface | [Demo](https://zhane-grey-evidence-dashboard.vercel.app) / [Repo](https://github.com/zrt219/AI-Engineering-Evidence-Engine) |
-| Vercel Build Doctor Agent | Deterministic build-log diagnosis, redaction, report export | [Demo](https://vercel-build-doctor-agent.vercel.app/build-doctor) / [Repo](https://github.com/zrt219/Build-Doctor) |
+| Vercel Build Doctor Agent | Deterministic build-log diagnosis, redaction, report export | [Demo](https://zhane-public-engineering-ai-portfolio-zrt219s-projects.vercel.app/build-doctor) / [Repo](https://github.com/zrt219/Build-Doctor) |
 | AI Resume Tailor Service | Evidence-aware resume and packet generation workflow | [Demo](https://ai-resume-tailor-service.vercel.app) / [Repo](https://github.com/zrt219/AI-resume-tailor-service-) |
 | Resume Evidence RAG Auditor | Resume claim verification and RAG/eval discipline | [Demo](https://resume-evidence-rag-auditor.vercel.app) / [Repo](https://github.com/zrt219/resume-evidence-rag-auditor) |
 | AI Gateway Failover Playground | Provider routing, fallback behavior, request traces | [Demo](https://ai-gateway-failover-playground.vercel.app) / [Repo](https://github.com/zrt219/ai-gateway-failover-playground) |
@@ -141,7 +141,7 @@ Latest local verification after the portfolio mainframe, tracker, QA, and wordin
 | Command | Result |
 |---|---|
 | `npm run typecheck` | PASS |
-| `npm test` | PASS, 32 tests |
+| `npm test` | PASS, 124 tests |
 | `npm run build` | PASS |
 | `npm run test:e2e` | PASS, 15 tests |
 | `npm run audit:security` | PASS |
@@ -195,7 +195,7 @@ Use `.env.example` for variable names and defaults. Do not commit local `.env` f
 
 Production target:
 
-- <https://vercel-build-doctor-agent.vercel.app>
+- <https://zhane-public-engineering-ai-portfolio-zrt219s-projects.vercel.app>
 
 Recommended deploy gate:
 
@@ -302,7 +302,7 @@ Core XRPL EVM systems plus related public product and AI repositories from the s
     <tr>
       <td><a href="https://github.com/zrt219/Build-Doctor">Build Doctor</a></td>
       <td>Codex-style build diagnosis harness for failed Next.js and Vercel builds with deterministic failure analysis.</td>
-      <td><a href="https://vercel-build-doctor-agent.vercel.app">Live</a></td>
+      <td><a href="https://zhane-public-engineering-ai-portfolio-zrt219s-projects.vercel.app">Live</a></td>
     </tr>
     <tr>
       <td><a href="https://github.com/zrt219/ai-gateway-failover-playground">AI Gateway Failover Playground</a></td>
